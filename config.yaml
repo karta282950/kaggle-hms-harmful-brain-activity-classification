@@ -1,27 +1,27 @@
 # ---------- Overriding hydra default configs ----------
 
-hydra:
-  job:
-    name: train
-    chdir: true
-  run:
-    dir: ${dir.output_dir}/${hydra.job.name}/${exp_name}/single
-  sweep:
-    dir: ${dir.output_dir}/${hydra.job.name}/${exp_name}
-    subdir: run${hydra.job.num}
+#hydra:
+#  job:
+#    name: train
+#    chdir: true
+#  run:
+#    dir: ${dir.OUTPUT_DIR}/${hydra.job.name}/${EXP_NAME}/single
+#  sweep:
+#    dir: ${dir.OUTPUT_DIR}/${hydra.job.name}/${EXP_NAME}
+#    subdir: run${hydra.job.num}
 
 # Dataset
 OUTPUT_DIR: '/kaggle/working/'
-PRE_LOADED_EEGS: '/kaggle/input/brain-eeg-spectrograms/eeg_specs.npy'
-PRE_LOADED_SPECTOGRAMS: '/kaggle/input/brain-spectrograms/specs.npy'
-TRAIN_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/train.csv"
+PRE_LOADED_EEGS: '/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/data/eeg_specs.npy'
+PRE_LOADED_SPECTOGRAMS: '/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/data/specs.npy'
+TRAIN_CSV: "/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/data/train.csv"
 TRAIN_EEGS: "/kaggle/input/brain-eeg-spectrograms/EEG_Spectrograms/"
 TRAIN_SPECTOGRAMS: "/kaggle/input/hms-harmful-brain-activity-classification/train_spectrograms/"
 TEST_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/test.csv"
 
 defaults: 
   - _self_
-  - model: tf_efficientnet_b7
+  #- model: efficientnet_b0
 
 SEED: 42
 
@@ -30,12 +30,12 @@ BATCH_SIZE_TRAIN: 32
 BATCH_SIZE_VALID: 32
 EPOCHS: 4
 FOLDS: 5
-NUM_WORKERS: 0
+NUM_WORKERS: 3
 num_epochs: 4
 LEARNING_RATE: 1e-1
 WEIGHT_DECAY: 1e-2
 EXP_NAME: 'exp001'
-
+model: efficientnet_b0
 # 幹我也看不懂
 AMP: True
 FREEZE: False

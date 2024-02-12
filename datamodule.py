@@ -16,6 +16,7 @@ import math
 from contextlib import contextmanager
 import psutil
 import sys
+from sklearn.model_selection import GroupShuffleSplit 
 import warnings
 warnings.filterwarnings('ignore')
 ###################
@@ -93,25 +94,27 @@ def trace(title):
     delta = math.fabs(delta)
     print(f"[{m1:.1f}GB({sign}{delta:.1f}GB):{time.time() - t0:.1f}sec] {title} ", file=sys.stderr)
 
+###################
+# Dataset
+###################
 class CustomDataset(Dataset):
     def __init__(
         self, 
         df: pd.DataFrame, 
         cfg: DictConfig,
+        specs: dict[int, np.ndarray],
+        eeg_specs: dict[int, np.ndarray],
         augment: bool = False, 
         mode: str = 'train',
-        specs: dict[int, np.ndarray],
-        eeg_specs: dict[int, np.ndarray]
         ):
-
         self.df = df
         self.cfg = cfg
         self.batch_size = self.cfg.BATCH_SIZE_TRAIN
         self.augment = augment
         self.mode = mode
+        self.label_cols = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
         self.spectograms = specs
         self.eeg_spectograms = eeg_specs
-        self.label_cols = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
         
     def __len__(self):
         """
@@ -140,23 +143,24 @@ class CustomDataset(Dataset):
             r = 0
         else: 
             r = int((row['min'] + row['max']) // 4)
-            
+        
         for region in range(4):
-            img = self.spectograms[row.spectogram_id][r:r+300, region*100:(region+1)*100].T
-            
-            # Log transform spectogram
-            img = np.clip(img, np.exp(-4), np.exp(8))
-            img = np.log(img)
+            if row.spectogram_id==789577333 and row.eeg_id==568657:
+                img = self.spectograms[row.spectogram_id][r:r+300, region*100:(region+1)*100].T
+                
+                # Log transform spectogram
+                img = np.clip(img, np.exp(-4), np.exp(8))
+                img = np.log(img)
 
-            # Standarize per image
-            ep = 1e-6
-            mu = np.nanmean(img.flatten())
-            std = np.nanstd(img.flatten())
-            img = (img-mu)/(std+ep)
-            img = np.nan_to_num(img, nan=0.0)
-            X[14:-14, :, region] = img[:, 22:-22] / 2.0
-            img = self.eeg_spectograms[row.eeg_id]
-            X[:, :, 4:] = img
+                # Standarize per image
+                ep = 1e-6
+                mu = np.nanmean(img.flatten())
+                std = np.nanstd(img.flatten())
+                img = (img-mu)/(std+ep)
+                img = np.nan_to_num(img, nan=0.0)
+                X[14:-14, :, region] = img[:, 22:-22] / 2.0
+                img = self.eeg_spectograms[row.eeg_id]
+                X[:, :, 4:] = img
                 
             if self.mode != 'test':
                 y = row[self.label_cols].values.astype(np.float32)
@@ -181,20 +185,19 @@ class SegDataModule(pl.LightningDataModule):
         self.eeg_specs = get_all_egg(cfg)
     
     def setup(self, stage: str) -> None:
-        from sklearn.model_selection import GroupShuffleSplit 
         splitter = GroupShuffleSplit(test_size=.20, n_splits=2, random_state = 7)
         split = splitter.split(self.train_df, groups=self.train_df['patient_id'])
         train_inds, test_inds = next(split)
 
-        self.train_ds = CustomDataset(self.train_df.iloc[train_inds])
-        self.valid_ds = CustomDataset(self.train_df.iloc[test_inds]) 
+        self.train_ds = CustomDataset(self.train_df.iloc[train_inds], cfg=self.cfg, specs=self.specs, eeg_specs=self.eeg_specs)
+        self.valid_ds = CustomDataset(self.train_df.iloc[test_inds], cfg=self.cfg, specs=self.specs, eeg_specs=self.eeg_specs) 
     
     def train_dataloader(self):
         train_loader = torch.utils.data.DataLoader(
             self.train_ds,
-            batch_size=self.cfg.batch_size,
+            batch_size=self.cfg.BATCH_SIZE_TRAIN,
             shuffle=True,
-            num_workers=self.cfg.num_workers,
+            num_workers=self.cfg.NUM_WORKERS,
             pin_memory=True,
             drop_last=True,
         )
@@ -203,9 +206,22 @@ class SegDataModule(pl.LightningDataModule):
     def val_dataloader(self):
         valid_loader = torch.utils.data.DataLoader(
             self.valid_ds,
-            batch_size=self.cfg.batch_size,
+            batch_size=self.cfg.BATCH_SIZE_VALID,
             shuffle=False,
-            num_workers=self.cfg.num_workers,
+            num_workers=self.cfg.NUM_WORKERS,
             pin_memory=True,
         )
         return valid_loader
+    
+@hydra.main(config_path="./", config_name="config", version_base="1.1")
+def main(cfg):
+    datamodule = SegDataModule(cfg)
+    datamodule.setup(stage=None)
+    for inputs, outputs in datamodule.train_dataloader():
+        print(inputs.shape)
+        print(outputs.shape)
+        break
+    return 
+
+if __name__ == '__main__':
+    main()

@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-
 import torch
 from torch import nn
 import pytorch_lightning as pl
@@ -40,9 +39,10 @@ def main(cfg):
     seed_everything(cfg.SEED)
     # init lightning model
     datamodule = SegDataModule(cfg)
+    datamodule.setup(stage=None)
+
     LOGGER.info("Set Up DataModule")
-    model = CustomModel(
-        cfg, datamodule.valid_event_df)
+    model = CustomModel(cfg)
     # set callbacks
     checkpoint_cb = ModelCheckpoint(
         verbose=True,
@@ -54,8 +54,8 @@ def main(cfg):
     lr_monitor = LearningRateMonitor("epoch")
     progress_bar = RichProgressBar()
     model_summary = RichModelSummary(max_depth=2)
-
     pl_logger = WandbLogger(name=cfg.exp_name, project="Harmful Brain Activity Classification")
+    
     trainer = pl.Trainer(
         # env
         default_root_dir=Path.cwd(),
@@ -78,8 +78,9 @@ def main(cfg):
     )
 
     trainer.fit(model, datamodule=datamodule)
-
+    #trainer.save_checkpoint(f'EffNet_v{VER}_f{i}.ckpt')
     # load best weights
+    '''
     model = model.load_from_checkpoint(
         checkpoint_cb.best_model_path,
         cfg=cfg,
@@ -88,10 +89,13 @@ def main(cfg):
         num_classes=len(cfg.labels),
         duration=cfg.duration,
     )
-    weights_path = str("model_weights.pth")  # type: ignore
+    
+    weights_path = str("model_weights.pth")
+      # type: ignore
     LOGGER.info(f"Extracting and saving best weights: {weights_path}")
     torch.save(model.model.state_dict(), weights_path)
-
+    '''
+    
     return
 
 

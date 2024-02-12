@@ -4,14 +4,14 @@ import torch
 from omegaconf import DictConfig
 import pytorch_lightning as pl
 import torch.nn.functional as F
-
+import hydra
 class CustomModel(pl.LightningModule):
     def __init__(self, cfg: DictConfig, num_classes: int = 6, pretrained: bool = True):
         super(CustomModel, self).__init__()
         self.USE_KAGGLE_SPECTROGRAMS = True
         self.USE_EEG_SPECTROGRAMS = True
         self.model = timm.create_model(
-            cfg.MODEL,
+            cfg.model,
             pretrained=pretrained,
             drop_rate = 0.1,
             drop_path_rate = 0.2,
@@ -67,6 +67,7 @@ class CustomModel(pl.LightningModule):
         self.log('train_loss', torch.tensor([loss]), prog_bar=True)
         return loss
     
+    '''
     def validation_step(self, batch, batch_idx):
         x, y = batch
         out = self.forward(x)
@@ -75,7 +76,8 @@ class CustomModel(pl.LightningModule):
         loss = kl_loss(out, y)
         self.log('val_loss', torch.tensor([loss]), prog_bar=True)
         return loss
-    
+    '''
+
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         return F.softmax(self(batch), dim=1)
     
@@ -83,9 +85,15 @@ class CustomModel(pl.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         return optimizer
 
-if __name__ == '__main__':
-    model = CustomModel()
-    inputs = torch.zeros((1, 128, 256, 4))
-    y = torch.zeros((1, 6))
+@hydra.main(config_path="./", config_name="config", version_base="1.1")
+def main(cfg):
+    model = CustomModel(cfg)
+    inputs = torch.zeros((3, 128, 256, 8))
+    y = torch.zeros((3, 6))
     outputs = model(inputs)
-    print(outputs)
+    outputs = F.log_softmax(outputs, dim=1)
+    kl_loss = nn.KLDivLoss(reduction='batchmean')
+    loss = kl_loss(outputs, y)
+    print(loss)
+if __name__ == '__main__':
+    main()
