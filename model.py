@@ -8,6 +8,7 @@ import hydra
 class CustomModel(pl.LightningModule):
     def __init__(self, cfg: DictConfig, num_classes: int = 6, pretrained: bool = True):
         super(CustomModel, self).__init__()
+        self.cfg = cfg
         self.save_hyperparameters()
         self.USE_KAGGLE_SPECTROGRAMS = True
         self.USE_EEG_SPECTROGRAMS = True
@@ -84,7 +85,7 @@ class CustomModel(pl.LightningModule):
     
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.cfg.EPOCHS)
         return [optimizer], [scheduler]
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
