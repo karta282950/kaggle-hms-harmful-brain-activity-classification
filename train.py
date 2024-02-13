@@ -24,6 +24,10 @@ logging.basicConfig(
 )
 LOGGER = logging.getLogger(Path(__file__).name)
 
+import wandb
+wandb.login()
+wandb.init(settings=wandb.Settings(start_method="thread"))
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print('Using', torch.cuda.device_count(), 'GPU(s)')
 

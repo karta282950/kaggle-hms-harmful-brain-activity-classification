@@ -8,6 +8,7 @@ import hydra
 class CustomModel(pl.LightningModule):
     def __init__(self, cfg: DictConfig, num_classes: int = 6, pretrained: bool = True):
         super(CustomModel, self).__init__()
+        self.save_hyperparameters()
         self.USE_KAGGLE_SPECTROGRAMS = True
         self.USE_EEG_SPECTROGRAMS = True
         self.model = timm.create_model(
