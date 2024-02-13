@@ -84,7 +84,8 @@ class CustomModel(pl.LightningModule):
     
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        return optimizer
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer)
+        return [optimizer], [scheduler]
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
