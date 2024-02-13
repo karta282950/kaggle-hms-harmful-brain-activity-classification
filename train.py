@@ -24,9 +24,9 @@ logging.basicConfig(
 )
 LOGGER = logging.getLogger(Path(__file__).name)
 
-import wandb
-wandb.login()
-wandb.init(settings=wandb.Settings(start_method="thread"))
+#import wandb
+#wandb.login()
+#wandb.init(settings=wandb.Settings(start_method="thread"))
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print('Using', torch.cuda.device_count(), 'GPU(s)')
@@ -58,7 +58,7 @@ def main(cfg):
     lr_monitor = LearningRateMonitor("epoch")
     progress_bar = RichProgressBar()
     model_summary = RichModelSummary(max_depth=2)
-    pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
+    #pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     
     trainer = pl.Trainer(
         # env
@@ -73,7 +73,7 @@ def main(cfg):
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
         callbacks=[checkpoint_cb, lr_monitor, progress_bar, model_summary],
-        logger=pl_logger,
+        #logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
         log_every_n_steps=int(len(datamodule.train_dataloader()) * 0.1),
