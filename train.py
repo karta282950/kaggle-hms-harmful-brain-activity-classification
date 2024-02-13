@@ -66,7 +66,7 @@ def main(cfg):
     lr_monitor = LearningRateMonitor("epoch")
     model_summary = RichModelSummary(max_depth=2)
     pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
-    progress_bar = RichProgressBar()
+    #progress_bar = RichProgressBar()
     #progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
     early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
   
@@ -82,7 +82,7 @@ def main(cfg):
         max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
-        callbacks=[checkpoint_cb, lr_monitor, model_summary, progress_bar, early_stopping],
+        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping],
         logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
