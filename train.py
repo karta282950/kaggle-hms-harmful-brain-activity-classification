@@ -81,7 +81,6 @@ def main(cfg):
         log_every_n_steps=int(len(datamodule.train_dataloader()) * 0.1),
         sync_batchnorm=True,
         check_val_every_n_epoch=cfg.check_val_every_n_epoch,
-        progress_bar_refresh_rate=30,
     )
 
     trainer.fit(model, datamodule=datamodule)
