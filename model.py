@@ -68,7 +68,7 @@ class CustomModel(pl.LightningModule):
         self.log('train_loss', torch.tensor([loss]), prog_bar=True)
         return loss
     
-    '''
+    
     def validation_step(self, batch, batch_idx):
         x, y = batch
         out = self.forward(x)
@@ -77,7 +77,7 @@ class CustomModel(pl.LightningModule):
         loss = kl_loss(out, y)
         self.log('val_loss', torch.tensor([loss]), prog_bar=True)
         return loss
-    '''
+    
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         return F.softmax(self(batch), dim=1)

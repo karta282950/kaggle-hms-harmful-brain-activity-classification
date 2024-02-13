@@ -147,22 +147,21 @@ class CustomDataset(Dataset):
             r = int((row['min'] + row['max']) // 4)
         
         for region in range(4):
-            if row.spectogram_id==789577333 and row.eeg_id==568657:
-                img = self.spectograms[row.spectogram_id][r:r+300, region*100:(region+1)*100].T
-                
-                # Log transform spectogram
-                img = np.clip(img, np.exp(-4), np.exp(8))
-                img = np.log(img)
+            img = self.spectograms[row.spectogram_id][r:r+300, region*100:(region+1)*100].T
+            
+            # Log transform spectogram
+            img = np.clip(img, np.exp(-4), np.exp(8))
+            img = np.log(img)
 
-                # Standarize per image
-                ep = 1e-6
-                mu = np.nanmean(img.flatten())
-                std = np.nanstd(img.flatten())
-                img = (img-mu)/(std+ep)
-                img = np.nan_to_num(img, nan=0.0)
-                X[14:-14, :, region] = img[:, 22:-22] / 2.0
-                img = self.eeg_spectograms[row.eeg_id]
-                X[:, :, 4:] = img
+            # Standarize per image
+            ep = 1e-6
+            mu = np.nanmean(img.flatten())
+            std = np.nanstd(img.flatten())
+            img = (img-mu)/(std+ep)
+            img = np.nan_to_num(img, nan=0.0)
+            X[14:-14, :, region] = img[:, 22:-22] / 2.0
+            img = self.eeg_spectograms[row.eeg_id]
+            X[:, :, 4:] = img
                 
             if self.mode != 'test':
                 y = row[self.label_cols].values.astype(np.float32)
