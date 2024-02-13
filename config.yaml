@@ -12,9 +12,9 @@
 
 # Dataset
 OUTPUT_DIR: '/kaggle/working/'
-PRE_LOADED_EEGS: '/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/data/eeg_specs.npy'
-PRE_LOADED_SPECTOGRAMS: '/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/data/specs.npy'
-TRAIN_CSV: "/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/data/train.csv"
+PRE_LOADED_EEGS: '/kaggle/input/brain-eeg-spectrograms/eeg_specs.npy'
+PRE_LOADED_SPECTOGRAMS: '/kaggle/input/brain-spectrograms/specs.npy'
+TRAIN_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/train.csv"
 TRAIN_EEGS: "/kaggle/input/brain-eeg-spectrograms/EEG_Spectrograms/"
 TRAIN_SPECTOGRAMS: "/kaggle/input/hms-harmful-brain-activity-classification/train_spectrograms/"
 TEST_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/test.csv"
