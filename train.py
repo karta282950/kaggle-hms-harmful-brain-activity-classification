@@ -24,6 +24,7 @@ import wandb
 secret_label = "WANDB"
 secret_value = UserSecretsClient().get_secret(secret_label)
 wandb.login(key=secret_value)
+wandb.init(project="Harmful Brain Activity Classification")
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s:%(name)s - %(message)s"
