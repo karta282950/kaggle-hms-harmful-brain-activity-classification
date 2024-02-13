@@ -18,6 +18,12 @@ from pytorch_lightning.callbacks import (
 from datamodule import SegDataModule
 from model import CustomModel
 import random
+from kaggle_secrets import UserSecretsClient
+import wandb
+
+secret_label = "WANDB"
+secret_value = UserSecretsClient().get_secret(secret_label)
+wandb.login(key=secret_value)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s:%(name)s - %(message)s"
