@@ -34,7 +34,7 @@ def seed_everything(seed):
     np.random.seed(seed)#numpy的随机种子
     random.seed(seed)#python内置的随机种子
 
-@hydra.main(config_path="./", config_name="train", version_base="1.1")
+@hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
     seed_everything(cfg.SEED)
     # init lightning model
@@ -54,7 +54,7 @@ def main(cfg):
     lr_monitor = LearningRateMonitor("epoch")
     progress_bar = RichProgressBar()
     model_summary = RichModelSummary(max_depth=2)
-    pl_logger = WandbLogger(name=cfg.exp_name, project="Harmful Brain Activity Classification")
+    pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     
     trainer = pl.Trainer(
         # env
@@ -64,8 +64,8 @@ def main(cfg):
         precision=16 if cfg.use_amp else 32,
         # training
         fast_dev_run=cfg.debug,  # run only 1 train batch and 1 val batch
-        max_epochs=cfg.epoch,
-        max_steps=cfg.epoch * len(datamodule.train_dataloader()),
+        max_epochs=cfg.EPOCHS,
+        max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
         callbacks=[checkpoint_cb, lr_monitor, progress_bar, model_summary],
@@ -95,7 +95,7 @@ def main(cfg):
     LOGGER.info(f"Extracting and saving best weights: {weights_path}")
     torch.save(model.model.state_dict(), weights_path)
     '''
-    
+
     return
 
 

@@ -1,0 +1,45 @@
+{
+    "os": "macOS-12.7.2-x86_64-i386-64bit",
+    "python": "3.9.16",
+    "heartbeatAt": "2024-02-12T17:05:15.329970",
+    "startedAt": "2024-02-12T17:05:13.851566",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/yukaisun/Documents/Research/kaggle\u6bd4\u8cfd/kaggle-hms-harmful-brain-activity-classification/train.py",
+    "codePathLocal": null,
+    "codePath": "train.py",
+    "git": {
+        "remote": "git@github.com:karta282950/kaggle-hms-harmful-brain-activity-classification.git",
+        "commit": "5115aab11267a9b853e20035e45c937761549e00"
+    },
+    "email": "104354020@nccu.edu.tw",
+    "root": "/Users/yukaisun/Documents/Research/kaggle\u6bd4\u8cfd/kaggle-hms-harmful-brain-activity-classification",
+    "host": "MacBook-Pro.local",
+    "username": "yukaisun",
+    "executable": "/Users/yukaisun/opt/anaconda3/envs/tabpfn/bin/python",
+    "cpu_count": 2,
+    "cpu_count_logical": 4,
+    "cpu_freq": {
+        "current": 2700,
+        "min": 2700,
+        "max": 2700
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2700,
+            "min": 2700,
+            "max": 2700
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 233.5667953491211,
+            "used": 205.3630828857422
+        }
+    },
+    "memory": {
+        "total": 8.0
+    }
+}

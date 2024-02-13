@@ -36,6 +36,15 @@ LEARNING_RATE: 1e-1
 WEIGHT_DECAY: 1e-2
 EXP_NAME: 'exp001'
 model: efficientnet_b0
+monitor: val_loss
+monitor_mode: min
+accelerator: auto
+use_amp: true
+debug: false
+gradient_clip_val: 1.0
+accumulate_grad_batches: 1
+check_val_every_n_epoch: 1
+
 # 幹我也看不懂
 AMP: True
 FREEZE: False

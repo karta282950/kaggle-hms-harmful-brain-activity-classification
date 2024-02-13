@@ -1,0 +1,123 @@
+Using bfloat16 Automatic Mixed Precision (AMP)
+Trainer already configured with model summary callbacks: [<class 'pytorch_lightning.callbacks.rich_model_summary.RichModelSummary'>]. Skipping setting a default `ModelSummary` callback.
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+┏━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┓
+┃[1m    [22m┃[1m Name              [22m┃[1m Type                 [22m┃[1m Params [22m┃
+┡━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━┩
+│ 0  │ model             │ EfficientNet         │  5.3 M │
+│ 1  │ model.conv_stem   │ Conv2d               │    864 │
+│ 2  │ model.bn1         │ BatchNormAct2d       │     64 │
+│ 3  │ model.blocks      │ Sequential           │  3.6 M │
+│ 4  │ model.conv_head   │ Conv2d               │  409 K │
+│ 5  │ model.bn2         │ BatchNormAct2d       │  2.6 K │
+│ 6  │ model.global_pool │ SelectAdaptivePool2d │      0 │
+│ 7  │ model.classifier  │ Linear               │  1.3 M │
+│ 8  │ features          │ Sequential           │  4.0 M │
+│ 9  │ custom_layers     │ Sequential           │  7.7 K │
+│ 10 │ custom_layers.0   │ AdaptiveAvgPool2d    │      0 │
+│ 11 │ custom_layers.1   │ Flatten              │      0 │
+│ 12 │ custom_layers.2   │ Linear               │  7.7 K │
+└────┴───────────────────┴──────────────────────┴────────┘
+[1mTrainable params[22m: 5.3 M
+[1mNon-trainable params[22m: 0
+[1mTotal params[22m: 5.3 M
+[1mTotal estimated model params size (MB)[22m: 21
+
+[37mEpoch 0/3 [39m [38m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[39m [37m1/417[39m [38m0:10:59 • -:--:--[39m [38m0.00it/s[39m [37mv_num: sbm3 train_loss: 1.355 
+[?25h
+Error executing job with overrides: []
+Traceback (most recent call last):
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/strategies/strategy.py", line 380, in training_step
+    return self.model.training_step(*args, **kwargs)
+  File "/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/model.py", line 63, in training_step
+    out = self.forward(x)
+  File "/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/model.py", line 57, in forward
+    x = self.features(x)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/timm/models/_efficientnet_blocks.py", line 182, in forward
+    x = self.conv_dw(x)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+KeyboardInterrupt
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+  File "/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/train.py", line 80, in main
+    trainer.fit(model, datamodule=datamodule)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 532, in fit
+    call._call_and_handle_interrupt(
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 43, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 571, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 980, in _run
+    results = self._run_stage()
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1023, in _run_stage
+    self.fit_loop.run()
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/fit_loop.py", line 202, in run
+    self.advance()
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/fit_loop.py", line 355, in advance
+    self.epoch_loop.run(self._data_fetcher)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 133, in run
+    self.advance(data_fetcher)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/training_epoch_loop.py", line 219, in advance
+    batch_output = self.automatic_optimization.run(trainer.optimizers[0], kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 188, in run
+    self._optimizer_step(kwargs.get("batch_idx", 0), closure)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 266, in _optimizer_step
+    call._call_lightning_module_hook(
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 145, in _call_lightning_module_hook
+    output = fn(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/core/module.py", line 1270, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/core/optimizer.py", line 161, in step
+    step_output = self._strategy.optimizer_step(self._optimizer, closure, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/strategies/strategy.py", line 231, in optimizer_step
+    return self.precision_plugin.optimizer_step(optimizer, model=model, closure=closure, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/amp.py", line 73, in optimizer_step
+    return super().optimizer_step(optimizer, model=model, closure=closure, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 116, in optimizer_step
+    return optimizer.step(closure=closure, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/optim/optimizer.py", line 280, in wrapper
+    out = func(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/optim/optimizer.py", line 33, in _use_grad
+    ret = func(self, *args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/optim/adam.py", line 121, in step
+    loss = closure()
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 103, in _wrap_closure
+    closure_result = closure()
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 142, in __call__
+    self._result = self.closure(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 128, in closure
+    step_output = self._step_fn()
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/automatic.py", line 315, in _training_step
+    training_step_output = call._call_strategy_hook(trainer, "training_step", *kwargs.values())
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/trainer/call.py", line 293, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/pytorch_lightning/strategies/strategy.py", line 380, in training_step
+    return self.model.training_step(*args, **kwargs)
+  File "/Users/yukaisun/opt/anaconda3/envs/tabpfn/lib/python3.9/site-packages/torch/utils/data/_utils/signal_handling.py", line 66, in handler
+    _error_if_any_worker_fails()
+RuntimeError: DataLoader worker (pid 52084) is killed by signal: Interrupt: 2.
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
