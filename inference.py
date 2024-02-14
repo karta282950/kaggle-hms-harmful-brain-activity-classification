@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import DataLoader
 from model import CustomModel
 import hydra
 import pandas as pd
@@ -7,7 +8,7 @@ import librosa
 import numpy as np 
 import matplotlib.pyplot as plt 
 import os
-
+from datamodule import CustomDataset
 VER = 5
 i = 0
 LOAD_MODELS_FROM = None
@@ -129,5 +130,30 @@ def spectrogram_from_eeg(parquet_path, display=False, USE_WAVELET=None, eeg_id=5
     
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
-    ckpt_file = f'EffNet_v{VER}_f{i}.ckpt' if LOAD_MODELS_FROM is None else f'{LOAD_MODELS_FROM}/EffNet_v{VER}_f{i}.ckpt'
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    TARGETS = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
+    spectrograms = get_all_spectrograms(cfg)
+    all_eegs = get_all_egg(cfg)
+    test = get_test_df(cfg)
+    preds = []
+    test_ds = CustomDataset(test, mode='test', specs=spectrograms, eeg_specs=all_eegs)
+    test_loader = DataLoader(test_ds, shuffle=False, batch_size=64, num_workers=3)
+    ckpt_file = cfg.LOAD_MODELS_FROM
     model = CustomModel(cfg).load_from_checkpoint(ckpt_file)
+    model.to(device).eval()
+    preds = []
+    with torch.inference_mode():
+        for test_batch in test_loader:
+            test_batch = test_batch.to(device)
+            pred = torch.softmax(model(test_batch), dim=1).cpu().numpy()
+            preds.append(pred)
+    print()
+    print('Test preds shape',preds.shape)
+    sub = pd.DataFrame({'eeg_id': test.eeg_id.values})
+    sub[TARGETS] = preds
+    sub.to_csv('submission.csv',index=False)
+    print('Submissionn shape',sub.shape)
+    sub.head()
+
+if __name__ == '__main__':
+    main()

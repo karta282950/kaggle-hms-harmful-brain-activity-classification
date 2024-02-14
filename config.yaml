@@ -48,6 +48,9 @@ gradient_clip_val: 1.0
 accumulate_grad_batches: 1
 check_val_every_n_epoch: 1
 
+# Inference
+LOAD_MODELS_FROM: '/kaggle/working/epoch=4-step=2085.ckpt'
+
 # 幹我也看不懂
 AMP: True
 FREEZE: False
