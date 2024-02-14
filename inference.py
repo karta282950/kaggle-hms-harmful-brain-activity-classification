@@ -140,7 +140,7 @@ def main(cfg):
     test_loader = DataLoader(test_ds, shuffle=False, batch_size=64, num_workers=3)
     ckpt_file = cfg.LOAD_MODELS_FROM
     model = CustomModel(cfg)
-    model.load_from_checkpoint(ckpt_file)
+    model.load_from_checkpoint(ckpt_file, cfg)
     model.to(device).eval()
     preds = []
     with torch.inference_mode():
