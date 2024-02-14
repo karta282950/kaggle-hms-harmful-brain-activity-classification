@@ -27,7 +27,7 @@ warnings.filterwarnings('ignore')
 
 def strong_aug(p=1):
     return A.Compose([
-        A.RandomRotate90(),
+        #A.RandomRotate180(),
         A.Flip(),
         A.Transpose(),
         A.OneOf([

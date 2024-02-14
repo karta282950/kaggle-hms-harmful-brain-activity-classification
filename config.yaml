@@ -38,7 +38,7 @@ num_epochs: 4
 LEARNING_RATE: 1e-1
 WEIGHT_DECAY: 1e-2
 EXP_NAME: 'exp001'
-model: 'efficientnet_b1' #efficientnet_b0 #resnet34d
+model: 'efficientnet_b0' #efficientnet_b0 #resnet34d
 monitor: val_loss
 monitor_mode: min
 accelerator: auto
