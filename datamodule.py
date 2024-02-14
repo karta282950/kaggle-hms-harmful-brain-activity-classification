@@ -199,12 +199,14 @@ class CustomDataset(Dataset):
         return X, y
     
     def __transform(self, img):
-        transforms = strong_aug()
-        
-        #    A.Compose([
-        #    A.HorizontalFlip(p=0.5),
-            
-        #])
+        transforms = A.Compose([
+            A.HorizontalFlip(p=0.5),
+            A.OneOf([
+                A.Cutout(max_h_size=5, max_w_size=16),
+                A.CoarseDropout(max_holes=4),
+            ], p=0.5),
+        ])
+
         return transforms(image=img)['image']
 
 ###################
