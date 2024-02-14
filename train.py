@@ -6,6 +6,7 @@ import pytorch_lightning as pl
 import hydra
 import pandas as pd
 import numpy as np 
+import sys
 #from model import CustomModel
 #from sklearn.model_selection import KFold, GroupKFold
 from pytorch_lightning.loggers import WandbLogger
@@ -14,6 +15,7 @@ from pytorch_lightning.callbacks import (
     ModelCheckpoint,
     RichModelSummary,
     RichProgressBar,
+    TQDMProgressBar
 )
 from datamodule import SegDataModule
 from model import CustomModel
@@ -43,6 +45,25 @@ def seed_everything(seed):
     np.random.seed(seed)#numpy的随机种子
     random.seed(seed)#python内置的随机种子
 
+class MyProgressBar(TQDMProgressBar):
+    def init_validation_tqdm(self):
+        bar = super().init_validation_tqdm()
+        if not sys.stdout.isatty():
+            bar.disable = True
+        return bar
+
+    def init_predict_tqdm(self):
+        bar = super().init_predict_tqdm()
+        if not sys.stdout.isatty():
+            bar.disable = True
+        return bar
+
+    def init_test_tqdm(self):
+        bar = super().init_test_tqdm()
+        if not sys.stdout.isatty():
+            bar.disable = True
+        return bar
+
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
     seed_everything(cfg.SEED)
@@ -68,6 +89,7 @@ def main(cfg):
     pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     #progress_bar = RichProgressBar()
     #progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
+    
     early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
   
     trainer = pl.Trainer(
@@ -82,7 +104,7 @@ def main(cfg):
         max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
-        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping],
+        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, MyProgressBar],
         logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
