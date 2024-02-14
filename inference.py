@@ -5,14 +5,16 @@ import pandas as pd
 import pywt, librosa
 import numpy as np 
 import matplotlib.pyplot as plt 
+import os
 
 VER = 5
 i = 0
 LOAD_MODELS_FROM = None
 
-test = pd.read_csv('/kaggle/input/hms-harmful-brain-activity-classification/test.csv')
-print('Test shape',test.shape)
-test.head()
+def get_test_df(cfg):
+    test = pd.read_csv(cfg.TEST_CSV)
+    print('Test shape',test.shape)
+
 # READ ALL SPECTROGRAMS
 PATH2 = '/kaggle/input/hms-harmful-brain-activity-classification/test_spectrograms/'
 files2 = os.listdir(PATH2)

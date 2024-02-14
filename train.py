@@ -88,8 +88,8 @@ def main(cfg):
     wandb.init(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     #progress_bar = RichProgressBar()
-    #progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
-    progress_bar = MyProgressBar()
+    progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
+    #progress_bar = MyProgressBar() val會print lines
     early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
   
     trainer = pl.Trainer(

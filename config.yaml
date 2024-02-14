@@ -18,7 +18,8 @@ TRAIN_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/train.csv"
 TRAIN_EEGS: "/kaggle/input/brain-eeg-spectrograms/EEG_Spectrograms/"
 TRAIN_SPECTOGRAMS: "/kaggle/input/hms-harmful-brain-activity-classification/train_spectrograms/"
 TEST_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/test.csv"
-
+TEST_EEGS: ''
+TEST_SPECTOGRAMS: '/kaggle/input/hms-harmful-brain-activity-classification/test_spectrograms/'
 defaults: 
   - _self_
   #- model: efficientnet_b0
@@ -30,7 +31,7 @@ AUGMENT: True
 # Training
 BATCH_SIZE_TRAIN: 32
 BATCH_SIZE_VALID: 32
-EPOCHS: 4
+EPOCHS: 5
 FOLDS: 5
 NUM_WORKERS: 3
 num_epochs: 4
