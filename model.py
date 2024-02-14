@@ -29,6 +29,8 @@ class CustomModel(pl.LightningModule):
             nn.Flatten(),
             nn.Linear(self.model.num_features, num_classes)
         )
+        self.training_step_outputs = []
+        self.validation_step_outputs = []
 
     def __reshape_input(self, x):
         """
@@ -67,9 +69,15 @@ class CustomModel(pl.LightningModule):
         kl_loss = nn.KLDivLoss(reduction='batchmean')
         loss = kl_loss(out, y)
         self.log('train_loss', torch.tensor([loss]), prog_bar=True)
+        self.training_step_outputs.append(torch.tensor([loss]))
         return loss
     
-    
+    def on_train_epoch_end(self):
+        # 计算平均loss
+        epoch_average = torch.stack(self.training_step_outputs).mean()
+        self.log("training_epoch_average", epoch_average)
+        self.training_step_outputs.clear()
+
     def validation_step(self, batch, batch_idx):
         x, y = batch
         out = self.forward(x)
@@ -77,8 +85,13 @@ class CustomModel(pl.LightningModule):
         kl_loss = nn.KLDivLoss(reduction='batchmean')
         loss = kl_loss(out, y)
         self.log('val_loss', torch.tensor([loss]), prog_bar=True)
+        self.validation_step_outputs.append(torch.tensor([loss]))
         return loss
     
+    def on_validation_epoch_end(self):
+        epoch_average = torch.stack(self.validation_step_outputs).mean()
+        self.log("validation_epoch_average", epoch_average)
+        self.validation_step_outputs.clear() 
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         return F.softmax(self(batch), dim=1)

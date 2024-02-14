@@ -23,8 +23,6 @@ import wandb
 
 secret_label = "WANDB"
 secret_value = UserSecretsClient().get_secret(secret_label)
-wandb.login(key=secret_value)
-wandb.init(project="Harmful Brain Activity Classification")
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s:%(name)s - %(message)s"
@@ -65,6 +63,8 @@ def main(cfg):
     )
     lr_monitor = LearningRateMonitor("epoch")
     model_summary = RichModelSummary(max_depth=2)
+    wandb.login(key=secret_value)
+    wandb.init(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     #progress_bar = RichProgressBar()
     #progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)

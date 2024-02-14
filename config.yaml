@@ -24,6 +24,8 @@ defaults:
   #- model: efficientnet_b0
 
 SEED: 42
+# Datamodule
+AUGMENT: True
 
 # Training
 BATCH_SIZE_TRAIN: 32
@@ -35,7 +37,7 @@ num_epochs: 4
 LEARNING_RATE: 1e-1
 WEIGHT_DECAY: 1e-2
 EXP_NAME: 'exp001'
-model: 'resnet34d' #efficientnet_b0
+model: 'efficientnet_b0' #efficientnet_b0 #resnet34d
 monitor: val_loss
 monitor_mode: min
 accelerator: auto

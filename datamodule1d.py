@@ -106,13 +106,13 @@ class CustomDataset(Dataset):
         cfg: DictConfig,
         specs: dict[int, np.ndarray],
         eeg_specs: dict[int, np.ndarray],
-        #augment: bool, 
+        augment: bool = True, 
         mode: str = 'train',
         ):
         self.df = df
         self.cfg = cfg
         self.batch_size = self.cfg.BATCH_SIZE_TRAIN
-        self.augment = self.cfg.AUGMENT
+        self.augment = augment
         self.mode = mode
         self.label_cols = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
         self.spectograms = specs
