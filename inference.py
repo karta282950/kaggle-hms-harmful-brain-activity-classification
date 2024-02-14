@@ -133,7 +133,7 @@ def main(cfg):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     TARGETS = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
     spectrograms = get_all_spectrograms(cfg)
-    all_eegs = get_all_egg(cfg)
+    all_eegs = get_all_egg(cfg, test)
     test = get_test_df(cfg)
     preds = []
     test_ds = CustomDataset(test, mode='test', specs=spectrograms, eeg_specs=all_eegs)
