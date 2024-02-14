@@ -127,9 +127,24 @@ def spectrogram_from_eeg(parquet_path, display=False, USE_WAVELET=None, eeg_id=5
         print(); print('#'*25); print()
         
     return img
-    
+
+from dataclasses import dataclass
+@dataclass
+class InferenceConfig:
+    TEST_CSV: str
+    TEST_SPECTOGRAMS: str
+    TEST_EEGS: str
+    BATCH_SIZE_TRAIN: int
+    AUGMENT: bool
+    LOAD_MODELS_FROM: str
+    FREEZE: bool
+    model: str
+    NUM_FROZEN_LAYERS: int
+    EPOCHS: int
+
+
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
-def main(cfg):
+def main(cfg: InferenceConfig):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     TARGETS = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
     test = get_test_df(cfg)
