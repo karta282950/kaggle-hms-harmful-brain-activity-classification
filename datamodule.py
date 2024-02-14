@@ -25,6 +25,36 @@ warnings.filterwarnings('ignore')
 # Dataset 
 ###################
 
+def strong_aug(p=1):
+    return A.Compose([
+        A.RandomRotate90(),
+        A.Flip(),
+        A.Transpose(),
+        A.OneOf([
+            A.IAAAdditiveGaussianNoise(),
+            A.GaussNoise(),
+        ], p=0.2),
+        A.OneOf([
+            A.MotionBlur(p=.2),
+            A.MedianBlur(blur_limit=3, p=.1),
+            A.Blur(blur_limit=3, p=.1),
+        ], p=0.2),
+        A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=.2),
+        A.OneOf([
+            A.OpticalDistortion(p=0.3),
+            A.GridDistortion(p=.1),
+            A.IAAPiecewiseAffine(p=0.3),
+        ], p=0.2),
+        A.OneOf([
+            A.CLAHE(clip_limit=2),
+            A.IAASharpen(),
+            A.IAAEmboss(),
+            A.RandomContrast(),
+            A.RandomBrightness(),
+        ], p=0.3),
+        #HueSaturationValue(p=0.3),
+    ], p=p)
+
 def get_train_df(cfg):
     df = pd.read_csv(cfg.TRAIN_CSV)
     label_cols = df.columns[-6:]
@@ -169,9 +199,12 @@ class CustomDataset(Dataset):
         return X, y
     
     def __transform(self, img):
-        transforms = A.Compose([
-            A.HorizontalFlip(p=0.5),
-        ])
+        transforms = strong_aug()
+        
+        #    A.Compose([
+        #    A.HorizontalFlip(p=0.5),
+            
+        #])
         return transforms(image=img)['image']
 
 ###################
@@ -215,7 +248,7 @@ class SegDataModule(pl.LightningDataModule):
         return valid_loader
     
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
-def main(cfg):
+def main(cfg):    
     datamodule = SegDataModule(cfg)
     datamodule.setup(stage=None)
     for inputs, outputs in datamodule.train_dataloader():

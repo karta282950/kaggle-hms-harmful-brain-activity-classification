@@ -18,7 +18,7 @@ TRAIN_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/train.csv"
 TRAIN_EEGS: "/kaggle/input/brain-eeg-spectrograms/EEG_Spectrograms/"
 TRAIN_SPECTOGRAMS: "/kaggle/input/hms-harmful-brain-activity-classification/train_spectrograms/"
 TEST_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/test.csv"
-TEST_EEGS: ''
+TEST_EEGS: '/kaggle/input/hms-harmful-brain-activity-classification/test_eegs/'
 TEST_SPECTOGRAMS: '/kaggle/input/hms-harmful-brain-activity-classification/test_spectrograms/'
 defaults: 
   - _self_
