@@ -170,7 +170,8 @@ def main(cfg: dict):
             pred = torch.softmax(model(test_batch), dim=1).cpu().numpy()
             preds.append(pred)
     print()
-    print('Test preds shape',preds.shape)
+    print(preds)
+    #print('Test preds shape',preds.shape)
     sub = pd.DataFrame({'eeg_id': test.eeg_id.values})
     sub[TARGETS] = preds
     sub.to_csv('submission.csv',index=False)
