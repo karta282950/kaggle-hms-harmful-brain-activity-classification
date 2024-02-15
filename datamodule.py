@@ -161,8 +161,11 @@ class CustomDataset(Dataset):
         X, y = self.__data_generation(index)
         if self.augment:
             X = self.__transform(X) 
-        return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
-                        
+        if self.mode=='train':
+            return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
+        else:
+            return torch.tensor(X, dtype=torch.float32)
+    
     def __data_generation(self, index):
         """
         Generates data containing batch_size samples.
