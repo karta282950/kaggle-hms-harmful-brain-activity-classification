@@ -142,9 +142,14 @@ class InferenceConfig:
     NUM_FROZEN_LAYERS: int
     EPOCHS: int
 
+def load_model(cfg):
+    model = CustomModel(cfg)
+    model.load_from_checkpoint(torch.load(cfg.LOAD_MODELS_FROM))
+    print('load weight from "{}"'.format(cfg.LOAD_MODELS_FROM))
+    return model
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
-def main(cfg: dict):
+def main(cfg):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     TARGETS = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
     test = get_test_df(cfg)
@@ -154,7 +159,8 @@ def main(cfg: dict):
     test_ds = CustomDataset(test, cfg=cfg, mode='test', specs=spectrograms, eeg_specs=all_eegs)
     test_loader = DataLoader(test_ds, shuffle=False, batch_size=64, num_workers=3)
     ckpt_file = cfg.LOAD_MODELS_FROM
-    model = CustomModel.load_from_checkpoint(ckpt_file, cfg)
+    model = CustomModel(cfg)
+    model.load_from_checkpoint(torch.load(ckpt_file))
     
     model.to(device).eval()
     preds = []
@@ -170,6 +176,7 @@ def main(cfg: dict):
     sub.to_csv('submission.csv',index=False)
     print('Submissionn shape',sub.shape)
     sub.head()
+    
 
 if __name__ == '__main__':
     main()
