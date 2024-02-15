@@ -173,7 +173,7 @@ def main(cfg: dict):
     print('Test preds shape',pred.shape)
     sub = pd.DataFrame({'eeg_id': test.eeg_id.values})
     sub[TARGETS] = pred
-    sub.to_csv('submission.csv',index=False)
+    sub.to_csv('/kaggle/working/submission.csv',index=False)
     print('Submissionn shape',sub.shape)
     sub.head()
     
