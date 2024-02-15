@@ -30,7 +30,7 @@ def denoise(x, wavelet='haar', level=1):
 
 def get_test_df(cfg):
     test = pd.read_csv(cfg.TEST_CSV)
-    test = test.rename({'spectrogram_id': 'spec_id'}, axis=1)
+    #test = test.rename({'spectrogram_id': 'spec_id'}, axis=1)
     print('Test shape',test.shape)
     return test
 
