@@ -158,11 +158,11 @@ def main(cfg):
     preds = []
     test_ds = CustomDataset(test, cfg=cfg, mode='test', specs=spectrograms, eeg_specs=all_eegs)
     test_loader = DataLoader(test_ds, shuffle=False, batch_size=64, num_workers=3)
-    ckpt_file = cfg.LOAD_MODELS_FROM
-    model = CustomModel(cfg)
-    model.load_from_checkpoint(torch.load(ckpt_file))
-    
-    model.to(device).eval()
+    #ckpt_file = cfg.LOAD_MODELS_FROM
+    #model = CustomModel(cfg)
+    #model.load_from_checkpoint(torch.load(ckpt_file))
+    model = load_model(cfg)
+    model = model.to(device).eval()
     preds = []
     with torch.inference_mode():
         for test_batch in test_loader:
