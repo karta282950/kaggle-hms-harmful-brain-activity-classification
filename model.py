@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 import torch.nn.functional as F
 import hydra
 class CustomModel(pl.LightningModule):
-    def __init__(self, cfg: dict, num_classes: int = 6, pretrained: bool = True):
+    def __init__(self, cfg: DictConfig, num_classes: int = 6, pretrained: bool = True):
         super(CustomModel, self).__init__()
         self.cfg = cfg
         self.save_hyperparameters()
@@ -104,6 +104,11 @@ class CustomModel(pl.LightningModule):
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
     model = CustomModel(cfg)
+    #PATH = '/Users/yukaisun/Downloads/EffNet_v5_f0.ckpt'
+    #model.load_from_checkpoint(PATH)
+    #checkpoint = torch.load(PATH)
+    #model.load_state_dict(torch.load(PATH),False)
+    #model.load_from_checkpoint(PATH, cfg)
     inputs = torch.zeros((3, 128, 256, 8))
     y = torch.zeros((3, 6))
     outputs = model(inputs)
