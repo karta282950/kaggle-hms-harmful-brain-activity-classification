@@ -62,7 +62,7 @@ def get_train_df(cfg):
         'spectrogram_id':'first',
         'spectrogram_label_offset_seconds':'min'
         })
-    train_df.columns = ['spectogram_id', 'min']
+    train_df.columns = ['spectrogram_id', 'min']
     aux = df.groupby('eeg_id')[['spectrogram_id','spectrogram_label_offset_seconds']].agg({
         'spectrogram_label_offset_seconds':'max'
         })
@@ -177,7 +177,7 @@ class CustomDataset(Dataset):
             r = int((row['min'] + row['max']) // 4)
         
         for region in range(4):
-            img = self.spectograms[row.spectogram_id][r:r+300, region*100:(region+1)*100].T
+            img = self.spectograms[row.spectrogram_id][r:r+300, region*100:(region+1)*100].T
             
             # Log transform spectogram
             img = np.clip(img, np.exp(-4), np.exp(8))
