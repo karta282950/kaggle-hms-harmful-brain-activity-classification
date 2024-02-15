@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 import torch.nn.functional as F
 import hydra
 class CustomModel(pl.LightningModule):
-    def __init__(self, cfg: DictConfig, num_classes: int = 6, pretrained: bool = True):
+    def __init__(self, cfg: dict, num_classes: int = 6, pretrained: bool = True):
         super(CustomModel, self).__init__()
         self.cfg = cfg
         self.save_hyperparameters()

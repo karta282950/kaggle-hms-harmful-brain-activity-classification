@@ -149,7 +149,7 @@ def load_model(cfg):
     return model
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
-def main(cfg):
+def main(cfg: dict):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     TARGETS = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
     test = get_test_df(cfg)
