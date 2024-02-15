@@ -165,15 +165,14 @@ def main(cfg: dict):
     preds = []
     with torch.inference_mode():
         for test_batch in test_loader:
-            print(test_batch)
             test_batch = test_batch.to(device)
             pred = torch.softmax(model(test_batch), dim=1).cpu().numpy()
             preds.append(pred)
     print()
-    print(preds)
-    #print('Test preds shape',preds.shape)
+    pred = np.mean(preds,axis=0)
+    print('Test preds shape',pred.shape)
     sub = pd.DataFrame({'eeg_id': test.eeg_id.values})
-    sub[TARGETS] = preds
+    sub[TARGETS] = pred
     sub.to_csv('submission.csv',index=False)
     print('Submissionn shape',sub.shape)
     sub.head()
