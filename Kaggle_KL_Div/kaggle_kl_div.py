@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 import pandas.api.types
-
-import kaggle_metric_utilities
-
+import sys, os
+#sys.path.append(os.path.join(sys.path[0],'bar','sub','dir'))
+#sys.path.append('/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/Kaggle_KL_Div')
+#import .kaggle_metric_utilities
+from .kaggle_metric_utilities import verify_valid_probabilities, safe_call_score
 from typing import Optional
 
 
@@ -90,9 +92,9 @@ def score(
         if col not in submission.columns:
             raise ParticipantVisibleError(f'Missing submission column {col}')
 
-    kaggle_metric_utilities.verify_valid_probabilities(solution, 'solution')
-    kaggle_metric_utilities.verify_valid_probabilities(submission, 'submission')
+    verify_valid_probabilities(solution, 'solution')
+    verify_valid_probabilities(submission, 'submission')
 
 
-    return kaggle_metric_utilities.safe_call_score(kl_divergence, solution, submission, epsilon=epsilon, micro_average=micro_average, sample_weights=sample_weights)
+    return safe_call_score(kl_divergence, solution, submission, epsilon=epsilon, micro_average=micro_average, sample_weights=sample_weights)
 

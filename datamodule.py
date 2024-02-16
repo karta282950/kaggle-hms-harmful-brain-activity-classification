@@ -25,64 +25,7 @@ warnings.filterwarnings('ignore')
 # Dataset 
 ###################
 
-def strong_aug(p=1):
-    return A.Compose([
-        #A.RandomRotate180(),
-        A.Flip(),
-        A.Transpose(),
-        A.OneOf([
-            A.IAAAdditiveGaussianNoise(),
-            A.GaussNoise(),
-        ], p=0.2),
-        A.OneOf([
-            A.MotionBlur(p=.2),
-            A.MedianBlur(blur_limit=3, p=.1),
-            A.Blur(blur_limit=3, p=.1),
-        ], p=0.2),
-        A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.2, rotate_limit=45, p=.2),
-        A.OneOf([
-            A.OpticalDistortion(p=0.3),
-            A.GridDistortion(p=.1),
-            A.IAAPiecewiseAffine(p=0.3),
-        ], p=0.2),
-        A.OneOf([
-            #A.CLAHE(clip_limit=2),
-            A.IAASharpen(),
-            A.IAAEmboss(),
-            A.RandomContrast(),
-            A.RandomBrightness(),
-        ], p=0.3),
-        #HueSaturationValue(p=0.3),
-    ], p=p)
-
-def get_train_df(cfg):
-    df = pd.read_csv(cfg.TRAIN_CSV)
-    label_cols = df.columns[-6:]
-    train_df = df.groupby('eeg_id')[['spectrogram_id','spectrogram_label_offset_seconds']].agg({
-        'spectrogram_id':'first',
-        'spectrogram_label_offset_seconds':'min'
-        })
-    train_df.columns = ['spectrogram_id', 'min']
-    aux = df.groupby('eeg_id')[['spectrogram_id','spectrogram_label_offset_seconds']].agg({
-        'spectrogram_label_offset_seconds':'max'
-        })
-    train_df['max'] = aux
-    aux = df.groupby('eeg_id')[['patient_id']].agg('first')
-    train_df['patient_id'] = aux
-
-    aux = df.groupby('eeg_id')[label_cols].agg('sum')
-    for label in label_cols:
-        train_df[label] = aux[label].values
-        
-    y_data = train_df[label_cols].values
-    y_data = y_data / y_data.sum(axis=1,keepdims=True)
-    train_df[label_cols] = y_data
-
-    aux = df.groupby('eeg_id')[['expert_consensus']].agg('first')
-    train_df['target'] = aux
-
-    train_df = train_df.reset_index()
-    return train_df, label_cols
+from utils import get_train_df
 
 def get_all_spectrograms(cfg, READ_SPEC_FILES=False):
     paths_spectograms = glob(cfg.TRAIN_SPECTOGRAMS + "*.parquet")
