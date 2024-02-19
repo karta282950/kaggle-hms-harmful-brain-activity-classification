@@ -222,7 +222,7 @@ class EEGModel(pl.LightningModule):
         self.cfg = cfg
         self.num_classes = num_classes
         self.fold = fold
-        self.backbone = EEGNet(cfg, kernelss=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=self.num_classes)
+        self.backbone = EEGNet(cfg, kernels=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=self.num_classes)
         self.loss_function = KLDivLossWithLogits() #nn.KLDivLoss() #nn.BCEWithLogitsLoss() 
         self.validation_step_outputs = []
         self.lin = nn.Softmax(dim=1)
