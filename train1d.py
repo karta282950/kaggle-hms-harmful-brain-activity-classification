@@ -17,8 +17,10 @@ from pytorch_lightning.callbacks import (
     RichProgressBar,
     TQDMProgressBar
 )
-from datamodule import SegDataModule, SegDataModule1D
-from model import CustomModel
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
+
+from datamodule import SegDataModule1D
+from resnet1d import EEGModel
 import random
 from kaggle_secrets import UserSecretsClient
 import wandb
@@ -39,41 +41,32 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print('Using', torch.cuda.device_count(), 'GPU(s)')
 
 def seed_everything(seed):
-    torch.backends.cudnn.deterministic = True#将cuda加速的随机数生成器设为确定性模式
-    torch.backends.cudnn.benchmark = True#关闭CuDNN框架的自动寻找最优卷积算法的功能，以避免不同的算法对结果产生影响
-    torch.manual_seed(seed)#pytorch的随机种子
-    np.random.seed(seed)#numpy的随机种子
-    random.seed(seed)#python内置的随机种子
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
 
-#測試val進度條
-class MyProgressBar(TQDMProgressBar):
-    def init_validation_tqdm(self):
-        bar = super().init_validation_tqdm()
-        if not sys.stdout.isatty():
-            bar.disable = True
-        return bar
+def get_optimizer(lr, params):
+    model_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, params), lr=lr, weight_decay=1e-2)
+    interval = "epoch"
+    lr_scheduler = CosineAnnealingWarmRestarts(
+        model_optimizer, T_0=20, T_mult=1, eta_min=1e-6, last_epoch=-1)
 
-    def init_predict_tqdm(self):
-        bar = super().init_predict_tqdm()
-        if not sys.stdout.isatty():
-            bar.disable = True
-        return bar
-
-    def init_test_tqdm(self):
-        bar = super().init_test_tqdm()
-        if not sys.stdout.isatty():
-            bar.disable = True
-        return bar
+    return {
+        "optimizer": model_optimizer, 
+        "lr_scheduler": {
+            "scheduler": lr_scheduler, "interval": interval, "monitor": "val_loss", "frequency": 1}}
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
     seed_everything(cfg.SEED)
     # init lightning model
-    datamodule = SegDataModule(cfg)
+    datamodule = SegDataModule1D(cfg)
     datamodule.setup(stage=None)
 
     LOGGER.info("Set Up DataModule")
-    model = CustomModel(cfg)
+    model = EEGModel(cfg)
     # set callbacks
     checkpoint_cb = ModelCheckpoint(
         verbose=True,
@@ -82,6 +75,7 @@ def main(cfg):
         save_top_k=1,
         save_last=False,
         dirpath=cfg.OUTPUT_DIR,
+        #filename= f'eegnet_best_loss_fold{fold_id}',
     )
     lr_monitor = LearningRateMonitor("epoch")
     model_summary = RichModelSummary(max_depth=2)

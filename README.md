@@ -1,4 +1,13 @@
 # Harmful-Brain-Activity-Classification
+## 模型筆記
+
+### 1. 現在2D的方法用renet34d跟effficient_b0-effficient_b2做
+
+### 2. 1D方式用cnn1d
+
+### 3. 標籤用投票數10當分界，分別訓練兩個模型
+
+
 ## Build Environment
 ### 1. install [rye](https://github.com/mitsuhiko/rye)
 

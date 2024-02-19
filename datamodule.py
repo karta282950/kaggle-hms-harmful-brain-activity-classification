@@ -18,6 +18,7 @@ from omegaconf import DictConfig
 from pathlib import Path
 import albumentations as A
 import hydra
+from utils import quantize_data, mu_law_encoding, mu_law_expansion, butter_lowpass_filter
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -25,7 +26,7 @@ warnings.filterwarnings('ignore')
 # Dataset 
 ###################
 
-from utils import get_train_df
+from utils import get_train_df, get_train_df_pop2
 
 def get_all_spectrograms(cfg, READ_SPEC_FILES=False):
     paths_spectograms = glob(cfg.TRAIN_SPECTOGRAMS + "*.parquet")
@@ -70,7 +71,7 @@ def trace(title):
     print(f"[{m1:.1f}GB({sign}{delta:.1f}GB):{time.time() - t0:.1f}sec] {title} ", file=sys.stderr)
 
 ###################
-# Dataset
+# Dataset - 2D
 ###################
 class CustomDataset(Dataset):
     def __init__(
@@ -150,13 +151,15 @@ class CustomDataset(Dataset):
             A.OneOf([
                 A.Cutout(max_h_size=5, max_w_size=16),
                 A.CoarseDropout(max_holes=4),
+                A.AddColoredNoise(p=0.15,mode="per_channel",p_mode="per_channel", max_snr_in_db = 15, sample_rate=200),
+
             ], p=0.5),
         ])
 
         return transforms(image=img)['image']
 
 ###################
-# DataModule
+# DataModule - 2D
 ###################
 class SegDataModule(pl.LightningDataModule):
     def __init__(self, cfg: DictConfig):
@@ -194,16 +197,91 @@ class SegDataModule(pl.LightningDataModule):
             pin_memory=True,
         )
         return valid_loader
+
+###################
+# Dataset - 1D
+###################
+class CustomDataset1D(Dataset):
+    def __init__(self, cfg, df, eegs=None, augmentations = None, test = False) -> None:
+        super().__init__()
+        self.cfg = cfg
+        self.df = df
+        self.eegs = eegs
+        self.augmentations = augmentations
+        self.test = test
+        self.label_cols = ['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
     
+    def __len__(self):
+        return len(self.df)
+    
+    def __getitem__(self, index):
+        row = self.df.iloc[index]
+        #if row.eeg_id==568657:
+        data = self.eegs[row.eeg_id]
+
+        data = np.clip(data,-1024,1024)
+        data = np.nan_to_num(data, nan=0) / 32.0
+        
+        data = butter_lowpass_filter(data)
+        data = quantize_data(data,1)
+
+        samples = torch.from_numpy(data).float()
+        
+        samples = self.augmentations(samples.unsqueeze(0), None)
+        samples = samples.squeeze()
+
+        samples = samples.permute(1,0)
+        if not self.test:
+            label = row[self.label_cols] 
+            label = torch.tensor(label).float()  
+            return samples, label
+        else:
+            return samples
+class SegDataModule1D(pl.LightningDataModule):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.cfg = cfg
+        self.train_df, self.label_cols = get_train_df(cfg)
+        self.eegs = get_all_egg(cfg)
+    
+    def setup(self, stage: str) -> None:
+        splitter = GroupShuffleSplit(test_size=.20, n_splits=2, random_state = 7)
+        split = splitter.split(self.train_df, groups=self.train_df['patient_id'])
+        train_inds, test_inds = next(split)
+
+        self.train_ds = CustomDataset1D(df=self.train_df.iloc[train_inds], cfg=self.cfg, eegs=self.eegs)
+        self.valid_ds = CustomDataset1D(df=self.train_df.iloc[test_inds], cfg=self.cfg, eegs=self.eegs)
+    
+    def train_dataloader(self):
+        train_loader = torch.utils.data.DataLoader(
+            self.train_ds,
+            batch_size=self.cfg.BATCH_SIZE_TRAIN,
+            shuffle=True,
+            num_workers=self.cfg.NUM_WORKERS,
+            pin_memory=True,
+            drop_last=True,
+        )
+        return train_loader
+    
+    def val_dataloader(self):
+        valid_loader = torch.utils.data.DataLoader(
+            self.valid_ds,
+            batch_size=self.cfg.BATCH_SIZE_VALID,
+            shuffle=False,
+            num_workers=self.cfg.NUM_WORKERS,
+            pin_memory=True,
+        )
+        return valid_loader
+
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):    
-    datamodule = SegDataModule(cfg)
+    datamodule = SegDataModule1D(cfg)
     datamodule.setup(stage=None)
     for inputs, outputs in datamodule.train_dataloader():
         print(inputs.shape)
         print(outputs.shape)
         break
-    return 
+    return
 
 if __name__ == '__main__':
     main()

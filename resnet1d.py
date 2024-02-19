@@ -298,12 +298,12 @@ class EEGModel(pl.LightningModule):
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
-    inputs = torch.randn(2, 8, 10000)
+    inputs = torch.randn(2, 8, 10000) #raw eeg shape: (10000, 8)
+    labels = torch.ones((2,6))
     model = EEGNet(cfg, kernels=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=6)
     outputs = model(inputs)
-    print(outputs.shape)
-    del inputs, model
-    gc.collect()
-    return
+    loss = KLDivLossWithLogits()(labels, outputs)
+    #return inputs, labels, outputs
+
 if __name__ == '__main__':
     main()
