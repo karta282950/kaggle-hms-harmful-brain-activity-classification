@@ -151,7 +151,7 @@ class CustomDataset(Dataset):
             A.OneOf([
                 A.Cutout(max_h_size=5, max_w_size=16),
                 A.CoarseDropout(max_holes=4),
-                A.AddColoredNoise(p=0.15,mode="per_channel",p_mode="per_channel", max_snr_in_db = 15, sample_rate=200),
+                #A.AddColoredNoise(p=0.15,mode="per_channel",p_mode="per_channel", max_snr_in_db = 15, sample_rate=200),
 
             ], p=0.5),
         ])
