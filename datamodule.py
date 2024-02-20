@@ -252,7 +252,7 @@ class CustomDataset1D(Dataset):
         if not self.test:
             label = row[self.label_cols]
             label = torch.tensor(label).float()
-            print(samples, label)
+            #print(samples, label)
             return samples, label
         else:
             return samples
