@@ -16,6 +16,7 @@ PRE_LOADED_EEGS: '/kaggle/input/brain-eeg-spectrograms/eeg_specs.npy' #'/Users/y
 PRE_LOADED_SPECTOGRAMS: '/kaggle/input/brain-spectrograms/specs.npy' #'/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/data/specs.npy'
 TRAIN_CSV: '/kaggle/input/hms-harmful-brain-activity-classification/train.csv'
 TRAIN_EEGS: "/kaggle/input/brain-eeg-spectrograms/EEG_Spectrograms/"
+TRAIN_RAW_EEGS: '/kaggle/input/brain-eegs/eegs.npy'
 TRAIN_SPECTOGRAMS: "/kaggle/input/hms-harmful-brain-activity-classification/train_spectrograms/"
 TEST_CSV: "/kaggle/input/hms-harmful-brain-activity-classification/test.csv"
 TEST_EEGS: '/kaggle/input/hms-harmful-brain-activity-classification/test_eegs/'

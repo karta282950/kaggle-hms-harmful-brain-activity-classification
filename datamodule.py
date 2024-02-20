@@ -234,7 +234,7 @@ class CustomDataset1D(Dataset):
         row = self.df.iloc[index]
         #if row.eeg_id==568657:
         data = self.eegs[row.eeg_id]
-        print(data.shape)
+        #print(data.shape)
         data = np.clip(data,-1024,1024)
         data = np.nan_to_num(data, nan=0) / 32.0
         
@@ -268,7 +268,7 @@ class SegDataModule1D(pl.LightningDataModule):
         super().__init__()
         self.cfg = cfg
         self.train_df, self.label_cols = get_train_df(cfg)
-        self.eegs = get_all_egg(cfg)
+        self.eegs = np.load(cfg.TRAIN_RAW_EEGS, allow_pickle=True).item() #get_all_egg(cfg)
     
     def setup(self, stage: str) -> None:
         splitter = GroupShuffleSplit(test_size=.20, n_splits=2, random_state = 7)
