@@ -243,7 +243,6 @@ class EEGModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx, use_mixup=False):
         image, target = batch   
-        #print(image, target)     
         if use_mixup:
             loss = self.train_with_mixup(image, target)
         else:
@@ -251,11 +250,10 @@ class EEGModel(pl.LightningModule):
             loss = self.loss_function(y_pred,target)
 
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
-        return loss        
+        return loss
 
     def validation_step(self, batch, batch_idx):
         image, target = batch 
-        #print(image, target)
         y_pred = self(image)
         val_loss = self.loss_function(y_pred, target)
         self.log("val_loss", val_loss, on_step=True, on_epoch=True, logger=True, prog_bar=True)
@@ -283,7 +281,8 @@ class EEGModel(pl.LightningModule):
         val_df['id'] = [f'id_{i}' for i in range(len(val_df))] 
         pred_df['id'] = [f'id_{i}' for i in range(len(pred_df))] 
 
-
+        print('val_df', val_df)
+        print('pred_df', pred_df)
         avg_score = score(val_df, pred_df, row_id_column_name = 'id')
 
         if avg_score < self.best_score:
@@ -298,11 +297,15 @@ class EEGModel(pl.LightningModule):
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
-    inputs = torch.randn(2, 8, 10000) #raw eeg shape: (10000, 8)
+    inputs = torch.ones((2, 8, 10000)) #raw eeg shape: (10000, 8)
     labels = torch.ones((2,6))
     model = EEGNet(cfg, kernels=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=6)
     outputs = model(inputs)
-    loss = KLDivLossWithLogits()(labels, outputs)
+    #loss = KLDivLossWithLogits()(labels, outputs)
+    kl_loss = nn.KLDivLoss(reduction='batchmean')
+    loss = kl_loss(outputs, labels)
+    print(loss)
+    #print(labels)
     #return inputs, labels, outputs
 
 if __name__ == '__main__':

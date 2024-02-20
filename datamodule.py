@@ -219,7 +219,6 @@ def get_transforms(*, data):
         return tA.Compose([
         ])
 
-
 class CustomDataset1D(Dataset):
     def __init__(self, cfg, df, eegs=None, augmentations = None, test = False) -> None:
         super().__init__()
