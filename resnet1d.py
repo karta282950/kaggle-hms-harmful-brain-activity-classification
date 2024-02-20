@@ -243,7 +243,7 @@ class EEGModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx, use_mixup=False):
         image, target = batch   
-        print(image, target)     
+        #print(image, target)     
         if use_mixup:
             loss = self.train_with_mixup(image, target)
         else:
@@ -255,7 +255,7 @@ class EEGModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         image, target = batch 
-        print(image, target)
+        #print(image, target)
         y_pred = self(image)
         val_loss = self.loss_function(y_pred, target)
         self.log("val_loss", val_loss, on_step=True, on_epoch=True, logger=True, prog_bar=True)
@@ -272,7 +272,6 @@ class EEGModel(pl.LightningModule):
     
     def on_validation_epoch_end(self):
         outputs = self.validation_step_outputs
-        # print(len(outputs))
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         output_val = nn.Softmax(dim=1)(torch.cat([x['logits'] for x in outputs],dim=0)).cpu().detach().numpy()
         target_val = torch.cat([x['targets'] for x in outputs],dim=0).cpu().detach().numpy()
