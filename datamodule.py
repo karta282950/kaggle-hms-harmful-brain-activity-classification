@@ -234,7 +234,7 @@ class CustomDataset1D(Dataset):
         row = self.df.iloc[index]
         #if row.eeg_id==568657:
         data = self.eegs[row.eeg_id]
-
+        print(data.shape)
         data = np.clip(data,-1024,1024)
         data = np.nan_to_num(data, nan=0) / 32.0
         
