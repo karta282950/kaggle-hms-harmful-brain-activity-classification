@@ -203,8 +203,22 @@ class SegDataModule(pl.LightningDataModule):
 ###################
 # Dataset - 1D
 ###################
+def get_transforms(*, data):
+    
+    if data == 'train':
+        return tA.Compose(
+                transforms=[
+                     # tA.ShuffleChannels(p=0.25,mode="per_channel",p_mode="per_channel",),
+                     tA.AddColoredNoise(p=0.15,mode="per_channel",p_mode="per_channel", max_snr_in_db = 15, sample_rate=200),
+                ])
+
+    elif data == 'valid':
+        return tA.Compose([
+        ])
+
+
 class CustomDataset1D(Dataset):
-    def __init__(self, cfg, df, eegs=None, augmentations = False, test = False) -> None:
+    def __init__(self, cfg, df, eegs=None, augmentations = None, test = False) -> None:
         super().__init__()
         self.cfg = cfg
         self.df = df
@@ -229,7 +243,7 @@ class CustomDataset1D(Dataset):
 
         samples = torch.from_numpy(data).float()
         
-        samples = self.__transform(samples.unsqueeze(0))
+        samples = self.augmentations(samples.unsqueeze(0))
         samples = samples.squeeze()
 
         samples = samples.permute(1,0)
@@ -261,8 +275,10 @@ class SegDataModule1D(pl.LightningDataModule):
         split = splitter.split(self.train_df, groups=self.train_df['patient_id'])
         train_inds, test_inds = next(split)
 
-        self.train_ds = CustomDataset1D(df=self.train_df.iloc[train_inds], cfg=self.cfg, augmentations = False, eegs=self.eegs)
-        self.valid_ds = CustomDataset1D(df=self.train_df.iloc[test_inds], cfg=self.cfg, augmentations = False, eegs=self.eegs)
+        self.train_ds = CustomDataset1D(
+            df=self.train_df.iloc[train_inds], cfg=self.cfg, augmentations = get_transforms(data='valid'), eegs=self.eegs)
+        self.valid_ds = CustomDataset1D(
+            df=self.train_df.iloc[test_inds], cfg=self.cfg, augmentations = get_transforms(data='valid'), eegs=self.eegs)
     
     def train_dataloader(self):
         train_loader = torch.utils.data.DataLoader(
