@@ -282,7 +282,9 @@ class EEGModel(pl.LightningModule):
         pred_df['id'] = [f'id_{i}' for i in range(len(pred_df))] 
 
         print('val_df', val_df)
+        val_df.to_csv('val_df.csv', sep=',')
         print('pred_df', pred_df)
+        pred_df.to_csv('pred_df.csv', sep=',')
         avg_score = score(val_df, pred_df, row_id_column_name = 'id')
 
         if avg_score < self.best_score:
