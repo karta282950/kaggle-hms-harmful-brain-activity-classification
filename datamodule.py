@@ -148,7 +148,7 @@ class CustomDataset(Dataset):
         return X, y
     
     def __transform(self, img):
-        transforms = tA.Compose([
+        transforms = A.Compose([
             A.HorizontalFlip(p=0.5),
             A.OneOf([
                 A.Cutout(max_h_size=5, max_w_size=16),
@@ -246,8 +246,8 @@ class CustomDataset1D(Dataset):
                 transforms=[
                     # tA.ShuffleChannels(p=0.25,mode="per_channel",p_mode="per_channel",),
                     tA.AddColoredNoise(p=0.15,mode="per_channel",p_mode="per_channel", max_snr_in_db = 15, sample_rate=200),
-                ])
-        return tA.Compose([])
+                ])(samples)
+        return tA.Compose([])(samples)
 
 class SegDataModule1D(pl.LightningDataModule):
     def __init__(self, cfg: DictConfig):
@@ -261,8 +261,8 @@ class SegDataModule1D(pl.LightningDataModule):
         split = splitter.split(self.train_df, groups=self.train_df['patient_id'])
         train_inds, test_inds = next(split)
 
-        self.train_ds = CustomDataset1D(df=self.train_df.iloc[train_inds], cfg=self.cfg, eegs=self.eegs)
-        self.valid_ds = CustomDataset1D(df=self.train_df.iloc[test_inds], cfg=self.cfg, eegs=self.eegs)
+        self.train_ds = CustomDataset1D(df=self.train_df.iloc[train_inds], cfg=self.cfg, augmentations = False, eegs=self.eegs)
+        self.valid_ds = CustomDataset1D(df=self.train_df.iloc[test_inds], cfg=self.cfg, augmentations = False, eegs=self.eegs)
     
     def train_dataloader(self):
         train_loader = torch.utils.data.DataLoader(
