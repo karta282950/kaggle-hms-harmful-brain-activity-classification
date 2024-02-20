@@ -1,3 +1,4 @@
 omegaconf
 hydra-core
 torchtoolbox
+torch_audiomentations

@@ -17,6 +17,8 @@ import shutil
 from omegaconf import DictConfig
 from pathlib import Path
 import albumentations as A
+import torch_audiomentations as tA
+
 import hydra
 from utils import quantize_data, mu_law_encoding, mu_law_expansion, butter_lowpass_filter
 
@@ -146,7 +148,7 @@ class CustomDataset(Dataset):
         return X, y
     
     def __transform(self, img):
-        transforms = A.Compose([
+        transforms = tA.Compose([
             A.HorizontalFlip(p=0.5),
             A.OneOf([
                 A.Cutout(max_h_size=5, max_w_size=16),
@@ -202,7 +204,7 @@ class SegDataModule(pl.LightningDataModule):
 # Dataset - 1D
 ###################
 class CustomDataset1D(Dataset):
-    def __init__(self, cfg, df, eegs=None, augmentations = None, test = False) -> None:
+    def __init__(self, cfg, df, eegs=None, augmentations = False, test = False) -> None:
         super().__init__()
         self.cfg = cfg
         self.df = df
@@ -227,7 +229,7 @@ class CustomDataset1D(Dataset):
 
         samples = torch.from_numpy(data).float()
         
-        samples = self.augmentations(samples.unsqueeze(0), None)
+        samples = self.__transform(samples.unsqueeze(0))
         samples = samples.squeeze()
 
         samples = samples.permute(1,0)
@@ -237,6 +239,16 @@ class CustomDataset1D(Dataset):
             return samples, label
         else:
             return samples
+    
+    def __transform(self, samples):
+        if self.augmentations:
+            return tA.Compose(
+                transforms=[
+                    # tA.ShuffleChannels(p=0.25,mode="per_channel",p_mode="per_channel",),
+                    tA.AddColoredNoise(p=0.15,mode="per_channel",p_mode="per_channel", max_snr_in_db = 15, sample_rate=200),
+                ])
+        return tA.Compose([])
+
 class SegDataModule1D(pl.LightningDataModule):
     def __init__(self, cfg: DictConfig):
         super().__init__()
