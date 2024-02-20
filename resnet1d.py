@@ -242,7 +242,8 @@ class EEGModel(pl.LightningModule):
         return loss_mixup
 
     def training_step(self, batch, batch_idx, use_mixup=False):
-        image, target = batch        
+        image, target = batch   
+        print(image, target)     
         if use_mixup:
             loss = self.train_with_mixup(image, target)
         else:
@@ -254,7 +255,7 @@ class EEGModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         image, target = batch 
-        # print(target)
+        print(image, target)
         y_pred = self(image)
         val_loss = self.loss_function(y_pred, target)
         self.log("val_loss", val_loss, on_step=True, on_epoch=True, logger=True, prog_bar=True)
