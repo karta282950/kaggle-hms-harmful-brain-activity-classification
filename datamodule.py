@@ -46,7 +46,7 @@ def get_all_spectrograms(cfg, READ_SPEC_FILES=False):
         all_spectrograms = np.load(cfg.PRE_LOADED_SPECTOGRAMS, allow_pickle=True).item()
         return all_spectrograms
 
-def get_all_egg(cfg, READ_EEG_SPEC_FILES=False):
+def get_all_egg(cfg, READ_EEG_SPEC_FILES=False, READ_EEG_RAW_FILES=False):
     paths_eegs = glob(cfg.TRAIN_EEGS + "*.npy")
     print(f'There are {len(paths_eegs)} EEG spectograms')
     if READ_EEG_SPEC_FILES:
@@ -56,9 +56,12 @@ def get_all_egg(cfg, READ_EEG_SPEC_FILES=False):
             eeg_spectogram = np.load(file_path)
             all_eegs[eeg_id] = eeg_spectogram
         return all_eegs
-    else:
+    if not READ_EEG_RAW_FILES:
         all_eegs = np.load(cfg.PRE_LOADED_EEGS, allow_pickle=True).item()
-        return all_eegs
+    else:
+        all_eegs = np.load(cfg.TRAIN_RAW_EEGS, allow_pickle=True).item()
+    return all_eegs
+    
 
 @contextmanager
 def trace(title):
@@ -234,7 +237,6 @@ class CustomDataset1D(Dataset):
         row = self.df.iloc[index]
         #if row.eeg_id==568657:
         data = self.eegs[row.eeg_id]
-        #print(data.shape)
         data = np.clip(data,-1024,1024)
         data = np.nan_to_num(data, nan=0) / 32.0
         
@@ -248,27 +250,28 @@ class CustomDataset1D(Dataset):
 
         samples = samples.permute(1,0)
         if not self.test:
-            label = row[self.label_cols] 
-            label = torch.tensor(label).float()  
+            label = row[self.label_cols]
+            label = torch.tensor(label).float()
+            print(samples, label)
             return samples, label
         else:
             return samples
     
-    def __transform(self, samples):
+    def __transform(self):
         if self.augmentations:
             return tA.Compose(
                 transforms=[
                     # tA.ShuffleChannels(p=0.25,mode="per_channel",p_mode="per_channel",),
                     tA.AddColoredNoise(p=0.15,mode="per_channel",p_mode="per_channel", max_snr_in_db = 15, sample_rate=200),
-                ])(samples)
-        return tA.Compose([])(samples)
+                ])
+        return tA.Compose([])
 
 class SegDataModule1D(pl.LightningDataModule):
     def __init__(self, cfg: DictConfig):
         super().__init__()
         self.cfg = cfg
         self.train_df, self.label_cols = get_train_df(cfg)
-        self.eegs = np.load(cfg.TRAIN_RAW_EEGS, allow_pickle=True).item() #get_all_egg(cfg)
+        self.eegs = get_all_egg(cfg, READ_EEG_RAW_FILES=True)
     
     def setup(self, stage: str) -> None:
         splitter = GroupShuffleSplit(test_size=.20, n_splits=2, random_state = 7)
@@ -284,7 +287,7 @@ class SegDataModule1D(pl.LightningDataModule):
         train_loader = torch.utils.data.DataLoader(
             self.train_ds,
             batch_size=self.cfg.BATCH_SIZE_TRAIN,
-            shuffle=True,
+            shuffle=False,
             num_workers=self.cfg.NUM_WORKERS,
             pin_memory=True,
             drop_last=True,
