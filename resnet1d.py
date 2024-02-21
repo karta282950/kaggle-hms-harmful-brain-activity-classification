@@ -184,7 +184,7 @@ class EEGNet(nn.Module):
         new_rnn_h = rnn_out[:, -1, :]  
 
         new_out = torch.cat([out, new_rnn_h], dim=1)  
-        result = self.fc(new_out)  
+        result = self.fc(new_out)
 
         return result
 
@@ -247,8 +247,8 @@ class EEGModel(pl.LightningModule):
             loss = self.train_with_mixup(image, target)
         else:
             y_pred = self(image)
-            loss = self.loss_function(y_pred,target)
-
+            loss = self.loss_function(y_pred, target)
+            print(loss)
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
         return loss
 
