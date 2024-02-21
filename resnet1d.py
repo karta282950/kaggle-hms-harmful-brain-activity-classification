@@ -248,7 +248,9 @@ class EEGModel(pl.LightningModule):
         else:
             y_pred = self(image)
             loss = self.loss_function(y_pred, target)
-            print(loss)
+            #print(loss)
+            print(y_pred)
+            print(target)
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
         return loss
 
