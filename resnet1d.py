@@ -305,12 +305,21 @@ def main(cfg):
     labels = torch.ones((2,6))
     model = EEGNet(cfg, kernels=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=6)
     outputs = model(inputs)
-    #loss = KLDivLossWithLogits()(labels, outputs)
     kl_loss = nn.KLDivLoss(reduction='batchmean')
     loss = kl_loss(outputs, labels)
     print(loss)
-    #print(labels)
-    #return inputs, labels, outputs
+
+@hydra.main(config_path="./", config_name="config", version_base="1.1")
+def main2(cfg):
+    from datamodule import SegDataModule1D
+    model = EEGNet(cfg, kernels=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=6)
+    datamodule = SegDataModule1D(cfg)
+    datamodule.setup(stage=None)
+    for inputs, labels in datamodule.train_dataloader():
+        outputs = model(inputs)
+        print(labels)
+        print(outputs)
+        break
 
 if __name__ == '__main__':
-    main()
+    main2()
