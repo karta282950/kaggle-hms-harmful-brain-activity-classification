@@ -22,6 +22,7 @@ from model import CustomModel
 import random
 from kaggle_secrets import UserSecretsClient
 import wandb
+from tqdm.auto import tqdm
 
 secret_label = "WANDB"
 secret_value = UserSecretsClient().get_secret(secret_label)
@@ -111,7 +112,7 @@ def main(cfg):
         max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
-        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, RichProgressBar()],
+        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, MyProgressBar()],
         logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
