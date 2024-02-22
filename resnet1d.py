@@ -317,8 +317,9 @@ def main2(cfg):
     datamodule.setup(stage=None)
     for inputs, labels in datamodule.train_dataloader():
         outputs = model(inputs)
-        print(labels)
-        print(outputs)
+        kl_loss = nn.KLDivLoss(reduction='batchmean')
+        loss = kl_loss(outputs, labels)
+        print(loss)
         break
 
 if __name__ == '__main__':

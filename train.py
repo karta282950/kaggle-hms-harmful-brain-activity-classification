@@ -65,6 +65,12 @@ class MyProgressBar(TQDMProgressBar):
             bar.disable = True
         return bar
 
+class LitProgressBar(TQDMProgressBar):
+    def init_validation_tqdm(self):
+        bar = super().init_validation_tqdm()
+        bar.set_description("running validation...")
+        return bar
+
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
     seed_everything(cfg.SEED)
@@ -89,7 +95,7 @@ def main(cfg):
     wandb.init(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     #progress_bar = RichProgressBar()
-    progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
+    #progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
     #progress_bar = MyProgressBar() val會print lines
     early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
   
@@ -105,7 +111,7 @@ def main(cfg):
         max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
-        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, progress_bar],
+        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, LitProgressBar()],
         logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
