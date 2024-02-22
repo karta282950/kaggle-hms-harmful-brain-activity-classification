@@ -111,7 +111,7 @@ def main(cfg):
         max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
-        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, LitProgressBar()],
+        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, RichProgressBar()],
         logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
