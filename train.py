@@ -15,7 +15,8 @@ from pytorch_lightning.callbacks import (
     ModelCheckpoint,
     RichModelSummary,
     RichProgressBar,
-    TQDMProgressBar
+    TQDMProgressBar,
+    ProgressBar
 )
 from datamodule import SegDataModule, SegDataModule1D
 from model import CustomModel
@@ -72,6 +73,51 @@ class LitProgressBar(TQDMProgressBar):
         bar.set_description("running validation...")
         return bar
 
+class LitProgressBar(ProgressBar):
+
+    def init_train_tqdm(self) -> tqdm:
+        """ Override this to customize the tqdm bar for training. """
+        bar = tqdm(
+            desc='Training',
+            initial=self.train_batch_idx,
+            position=(2 * self.process_position),
+            disable=self.is_disabled,
+            leave=True,
+            dynamic_ncols=False,  # This two lines are only for pycharm
+            ncols=100,
+            file=sys.stdout,
+            smoothing=0,
+        )
+        return bar
+
+    def init_validation_tqdm(self) -> tqdm:
+        """ Override this to customize the tqdm bar for validation. """
+        # The main progress bar doesn't exist in `trainer.validate()`
+        has_main_bar = self.main_progress_bar is not None
+        bar = tqdm(
+            desc='Validating',
+            position=(2 * self.process_position + has_main_bar),
+            disable=self.is_disabled,
+            leave=False,
+            dynamic_ncols=False,
+            ncols=100,
+            file=sys.stdout
+        )
+        return bar
+
+    def init_test_tqdm(self) -> tqdm:
+        """ Override this to customize the tqdm bar for testing. """
+        bar = tqdm(
+            desc="Testing",
+            position=(2 * self.process_position),
+            disable=self.is_disabled,
+            leave=True,
+            dynamic_ncols=False,
+            ncols=100,
+            file=sys.stdout
+        )
+        return bar
+
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
     seed_everything(cfg.SEED)
@@ -112,7 +158,7 @@ def main(cfg):
         max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
-        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, MyProgressBar()],
+        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, LitProgressBar()],
         logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
