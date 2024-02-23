@@ -304,7 +304,7 @@ class SegDataModule1D(pl.LightningDataModule):
         return valid_loader
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
-def main(cfg):    
+def main(cfg):
     datamodule = SegDataModule1D(cfg)
     datamodule.setup(stage=None)
     for inputs, outputs in datamodule.train_dataloader():

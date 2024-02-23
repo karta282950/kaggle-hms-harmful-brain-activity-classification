@@ -248,9 +248,6 @@ class EEGModel(pl.LightningModule):
         else:
             y_pred = self(image)
             loss = self.loss_function(y_pred, target)
-            #print(loss)
-            print(y_pred)
-            print(target)
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
         return loss
 
@@ -283,10 +280,10 @@ class EEGModel(pl.LightningModule):
         val_df['id'] = [f'id_{i}' for i in range(len(val_df))] 
         pred_df['id'] = [f'id_{i}' for i in range(len(pred_df))] 
 
-        print('val_df', val_df)
-        val_df.to_csv('val_df.csv', sep=',')
-        print('pred_df', pred_df)
-        pred_df.to_csv('pred_df.csv', sep=',')
+        #print('val_df', val_df)
+        #val_df.to_csv('val_df.csv', sep=',')
+        #print('pred_df', pred_df)
+        #pred_df.to_csv('pred_df.csv', sep=',')
         avg_score = score(val_df, pred_df, row_id_column_name = 'id')
 
         if avg_score < self.best_score:
@@ -301,26 +298,28 @@ class EEGModel(pl.LightningModule):
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
-    inputs = torch.ones((2, 8, 10000)) #raw eeg shape: (10000, 8)
-    labels = torch.ones((2,6))
+    import warnings
+    warnings.filterwarnings("ignore")
+    inputs = torch.rand(2, 8, 10000) #raw eeg shape: (10000, 8)
+    labels = torch.rand(2,6)
     model = EEGNet(cfg, kernels=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=6)
     outputs = model(inputs)
-    kl_loss = nn.KLDivLoss(reduction='batchmean')
-    loss = kl_loss(outputs, labels)
+    loss = KLDivLossWithLogits()(outputs, labels)
     print(loss)
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main2(cfg):
     from datamodule import SegDataModule1D
+    import warnings
+    warnings.filterwarnings("ignore")
     model = EEGNet(cfg, kernels=[3,5,7,9], in_channels=8, fixed_kernel_size=5, num_classes=6)
     datamodule = SegDataModule1D(cfg)
     datamodule.setup(stage=None)
     for inputs, labels in datamodule.train_dataloader():
         outputs = model(inputs)
-        kl_loss = nn.KLDivLoss(reduction='batchmean')
-        loss = kl_loss(outputs, labels)
+        loss = KLDivLossWithLogits()(outputs, labels)
         print(loss)
         break
 
 if __name__ == '__main__':
-    main2()
+    main()
