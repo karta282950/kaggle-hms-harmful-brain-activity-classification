@@ -84,7 +84,7 @@ class CustomModel(pl.LightningModule):
         out = F.log_softmax(out, dim=1)
         kl_loss = nn.KLDivLoss(reduction='batchmean')
         loss = kl_loss(out, y)
-        self.log('val_loss', torch.tensor([loss]), prog_bar=False)
+        self.log('val_loss', torch.tensor([loss]), prog_bar=True)
         self.validation_step_outputs.append(torch.tensor([loss]))
         return loss
     
