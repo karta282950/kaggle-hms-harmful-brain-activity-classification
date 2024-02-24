@@ -249,6 +249,11 @@ class EEGModel(pl.LightningModule):
             loss = self.loss_function(y_pred, target)
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
         return loss
+    
+    def on_train_epoch_end(self):
+        epoch_average = torch.stack(self.training_step_outputs).mean()
+        self.log("training_epoch_average", epoch_average)
+        self.training_step_outputs.clear()
 
     def validation_step(self, batch, batch_idx):
         image, target = batch 
@@ -260,39 +265,18 @@ class EEGModel(pl.LightningModule):
 
         return {"val_loss": val_loss, "logits": y_pred, "targets": target}
     
+    def on_validation_epoch_end(self):
+        epoch_average = torch.stack(self.validation_step_outputs).mean()
+        self.log("validation_epoch_average", epoch_average)
+        self.validation_step_outputs.clear() 
+
     def train_dataloader(self):
         return self._train_dataloader
     
     def validation_dataloader(self):
         return self._validation_dataloader
     
-    def on_validation_epoch_end(self):
-        outputs = self.validation_step_outputs
-        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
-        output_val = nn.Softmax(dim=1)(torch.cat([x['logits'] for x in outputs],dim=0)).cpu().detach().numpy()
-        target_val = torch.cat([x['targets'] for x in outputs],dim=0).cpu().detach().numpy()
-        self.validation_step_outputs = []
-        TARGETS=['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']
-        val_df = pd.DataFrame(target_val, columns = list(TARGETS))
-        pred_df = pd.DataFrame(output_val, columns = list(TARGETS))
-
-        val_df['id'] = [f'id_{i}' for i in range(len(val_df))] 
-        pred_df['id'] = [f'id_{i}' for i in range(len(pred_df))] 
-
-        #print('val_df', val_df)
-        #val_df.to_csv('val_df.csv', sep=',')
-        #print('pred_df', pred_df)
-        #pred_df.to_csv('pred_df.csv', sep=',')
-        avg_score = score(val_df, pred_df, row_id_column_name = 'id')
-
-        if avg_score < self.best_score:
-            print(f'Fold {self.fold}: Epoch {self.current_epoch} validation loss {avg_loss}')
-            print(f'Fold {self.fold}: Epoch {self.current_epoch} validation KDL score {avg_score}')
-            self.best_score = avg_score
-            # val_df.to_csv(f'{Config.output_dir}/val_df_f{self.fold}.csv',index=False)
-            # pred_df.to_csv(f'{Config.output_dir}/pred_df_f{self.fold}.csv',index=False)
-        
-        return {'val_loss': avg_loss,'val_cmap':avg_score}
+    
     
 
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
