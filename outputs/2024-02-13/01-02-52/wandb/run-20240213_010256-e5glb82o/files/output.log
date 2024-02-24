@@ -1,8 +1,0 @@
-Error executing job with overrides: []
-Traceback (most recent call last):
-  File "/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/train.py", line 64, in main
-    precision=16 if cfg.use_amp else 32,
-omegaconf.errors.ConfigAttributeError: Key 'use_amp' is not in struct
-    full_key: use_amp
-    object_type=dict
-Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

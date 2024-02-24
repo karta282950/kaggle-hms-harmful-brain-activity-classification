@@ -1,4 +1,4 @@
-data
+data/*
 processed_data
 __pycache__
-outputs/*
+outputs

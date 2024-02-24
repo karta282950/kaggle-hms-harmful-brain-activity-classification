@@ -1,3 +1,0 @@
-[2024-02-12 23:14:15,219][train.py][INFO] - Set Up DataModule
-[2024-02-12 23:14:15,419][timm.models._builder][INFO] - Loading pretrained weights from Hugging Face hub (timm/efficientnet_b0.ra_in1k)
-[2024-02-12 23:14:16,047][timm.models._hub][INFO] - [timm/efficientnet_b0.ra_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.

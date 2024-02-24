@@ -1,8 +1,0 @@
-Error executing job with overrides: []
-Traceback (most recent call last):
-  File "/Users/yukaisun/Documents/Research/kaggle比賽/kaggle-hms-harmful-brain-activity-classification/train.py", line 63, in main
-    accelerator=cfg.accelerator,
-omegaconf.errors.ConfigAttributeError: Key 'accelerator' is not in struct
-    full_key: accelerator
-    object_type=dict
-Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
