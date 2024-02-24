@@ -262,11 +262,9 @@ class EEGModel(pl.LightningModule):
         y_pred = self(image)
         val_loss = self.loss_function(y_pred, target)
         self.log("val_loss", val_loss, on_step=True, on_epoch=True, logger=True, prog_bar=True)
-        self.validation_step_outputs.append({
-            "val_loss": val_loss, "logits": y_pred, "targets": target})
         self.validation_step_outputs.append(torch.tensor([val_loss]))
         
-        return {"val_loss": val_loss, "logits": y_pred, "targets": target}
+        return val_loss
     
     def on_validation_epoch_end(self):
         epoch_average = torch.stack(self.validation_step_outputs).mean()
