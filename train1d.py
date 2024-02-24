@@ -6,6 +6,7 @@ import pytorch_lightning as pl
 import hydra
 import pandas as pd
 import numpy as np 
+import gc
 import sys
 #from model import CustomModel
 #from sklearn.model_selection import KFold, GroupKFold
@@ -64,7 +65,7 @@ def main(cfg):
     # init lightning model
     datamodule = SegDataModule1D(cfg)
     datamodule.setup(stage=None)
-
+    gc.collect()
     LOGGER.info("Set Up DataModule")
     model = EEGModel(cfg)
     # set callbacks
@@ -75,16 +76,13 @@ def main(cfg):
         save_top_k=1,
         save_last=False,
         dirpath=cfg.OUTPUT_DIR,
-        #filename= f'eegnet_best_loss_fold{fold_id}',
+        filename= f'eegnet_best_loss',
     )
     lr_monitor = LearningRateMonitor("epoch")
     model_summary = RichModelSummary(max_depth=2)
     wandb.login(key=secret_value)
-    wandb.init(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
-    #progress_bar = RichProgressBar()
     progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
-    #progress_bar = MyProgressBar() val會print lines
     early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
   
     trainer = pl.Trainer(
@@ -107,10 +105,8 @@ def main(cfg):
         sync_batchnorm=True,
         check_val_every_n_epoch=cfg.check_val_every_n_epoch,
     )
-
     trainer.fit(model, datamodule=datamodule)
     return
-
 
 if __name__ == "__main__":
     main()

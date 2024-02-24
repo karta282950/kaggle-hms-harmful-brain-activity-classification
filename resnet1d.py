@@ -7,7 +7,6 @@ from torchtoolbox.tools import mixup_data, mixup_criterion
 import sys, os
 sys.path.append(os.path.join(sys.path[0],'bar','sub','dir'))
 from Kaggle_KL_Div.kaggle_kl_div import score
-
 from omegaconf import DictConfig
 import hydra
 import pandas as pd
@@ -15,16 +14,16 @@ import gc
 
 '''
 To Do:
+* loss cant decrease
 * 
 
 Done:
-* 
+* Create resnet
+* create main to check
 
 Ref:
 * https://www.researchgate.net/publication/359051366_GWNET_Detecting_Gravitational_Waves_using_Hierarchical_and_Residual_Learning_based_1D_CNNs
 '''
-    
-
 class ResNet_1D_Block(nn.Module):
     def __init__(
             self, 
@@ -233,7 +232,7 @@ class EEGModel(pl.LightningModule):
         return logits
         
     def configure_optimizers(self):
-        return get_optimizer(lr=self.cfg.LEARNING_RATE, params=self.parameters())
+        return get_optimizer(lr=8e-3, params=self.parameters())
 
     def train_with_mixup(self, X, y):
         X, y_a, y_b, lam = mixup_data(X, y, alpha=0.1)
