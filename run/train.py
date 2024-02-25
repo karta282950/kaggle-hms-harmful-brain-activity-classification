@@ -49,7 +49,7 @@ def seed_everything(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-@hydra.main(config_path="./", config_name="config", version_base="1.1")
+@hydra.main(config_path="conf", config_name="train", version_base="1.1")
 def main(cfg):
     seed_everything(cfg.SEED)
     LOGGER.info("Set Up DataModule")
