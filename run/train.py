@@ -20,8 +20,9 @@ from pytorch_lightning.callbacks import (
     TQDMProgressBar,
     ProgressBar
 )
-import sys
-sys.path.append('../')
+import sys, os
+sys.path.append('/kaggle/working/kaggle-hms-harmful-brain-activity-classification')
+
 from src.datamodule import get_all_egg, get_all_spectrograms
 from src.dataset.common import get_train_df
 from src.dataset.seg import CustomDataset2D
