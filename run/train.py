@@ -68,8 +68,7 @@ def main(cfg):
         print(f'### Train size: {len(train_index)}, Valid size: {len(valid_index)}')
         print('#'*25)
         early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
-        ckpt_callback = pl.callbacks.ModelCheckpoint(
-            verbose=True, monitor=True, mode='min', monitor='val_loss', save_top_k=1, mode='min', dirpath='/kaggle/working',filename=f'efficientnet_b0_fold_{i}')
+        ckpt_callback = pl.callbacks.ModelCheckpoint(verbose=True, monitor='val_loss', save_top_k=1, mode='min', dirpath='/kaggle/working',filename=f'efficientnet_b0_fold_{i}')
         pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
         lr_monitor = LearningRateMonitor("epoch")
         model_summary = RichModelSummary(max_depth=2)
