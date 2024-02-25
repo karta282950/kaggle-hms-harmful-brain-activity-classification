@@ -58,7 +58,7 @@ def main(cfg):
 
     specs = get_all_spectrograms(cfg)
     eeg = get_all_egg(cfg)
-    train = get_train_df(cfg)
+    train, _ = get_train_df(cfg)
     gkf = GroupKFold(n_splits=5)
     for i, (train_index, valid_index) in enumerate(gkf.split(train, train.target, train.patient_id)):  
         print('#'*25)
