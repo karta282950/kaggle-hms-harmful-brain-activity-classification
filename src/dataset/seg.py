@@ -32,7 +32,7 @@ class CustomDataset2D(Dataset):
         cfg: DictConfig,
         specs: dict[int, np.ndarray],
         eeg_specs: dict[int, np.ndarray],
-        augment: bool, 
+        augment: bool = False, 
         mode: str = 'train',
         ):
         self.df = df
