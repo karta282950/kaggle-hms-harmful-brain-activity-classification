@@ -180,7 +180,7 @@ class EEGNet(nn.Module):
         out = out.reshape(out.shape[0], -1)  
 
         rnn_out, _ = self.rnn(x.permute(0,2, 1))
-        new_rnn_h = rnn_out[:, -1, :]  
+        new_rnn_h = rnn_out[:, -1, :]
 
         new_out = torch.cat([out, new_rnn_h], dim=1)  
         result = self.fc(new_out)
