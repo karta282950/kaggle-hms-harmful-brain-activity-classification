@@ -21,7 +21,7 @@ import torch_audiomentations as tA
 
 import hydra
 from utils import quantize_data, mu_law_encoding, mu_law_expansion, butter_lowpass_filter
-from dataset.seg import CustomDataset1D, CustomDataset2D
+from src.dataset.seg import CustomDataset1D, CustomDataset2D
 import warnings
 warnings.filterwarnings('ignore')
 ###################

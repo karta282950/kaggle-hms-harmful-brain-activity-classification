@@ -20,9 +20,11 @@ from pytorch_lightning.callbacks import (
     TQDMProgressBar,
     ProgressBar
 )
-from datamodule import get_all_egg, get_all_spectrograms
-from dataset.common import get_train_df
-from dataset.seg import CustomDataset2D
+import sys
+sys.path.append('../')
+from src.datamodule import get_all_egg, get_all_spectrograms
+from src.dataset.common import get_train_df
+from src.dataset.seg import CustomDataset2D
 from model import CustomModel
 import random
 from kaggle_secrets import UserSecretsClient
