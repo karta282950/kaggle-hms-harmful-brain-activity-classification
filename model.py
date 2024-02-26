@@ -4,6 +4,8 @@ import torch
 from omegaconf import DictConfig
 import pytorch_lightning as pl
 import torch.nn.functional as F
+from torchvision.transforms import Resize 
+
 import hydra
 class CustomModel(pl.LightningModule):
     def __init__(self, cfg: DictConfig, num_classes: int = 6, pretrained: bool = True):
@@ -60,6 +62,7 @@ class CustomModel(pl.LightningModule):
         x = self.__reshape_input(x)
         x = self.features(x)
         x = self.custom_layers(x)
+        x = Resize((448, 448))(x)
         return x
 
     def training_step(self, batch, batch_idx):
