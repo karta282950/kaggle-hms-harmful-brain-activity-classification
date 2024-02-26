@@ -48,17 +48,6 @@ def seed_everything(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-def get_optimizer(lr, params):
-    model_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, params), lr=lr, weight_decay=1e-2)
-    interval = "epoch"
-    lr_scheduler = CosineAnnealingWarmRestarts(
-        model_optimizer, T_0=20, T_mult=1, eta_min=1e-6, last_epoch=-1)
-
-    return {
-        "optimizer": model_optimizer, 
-        "lr_scheduler": {
-            "scheduler": lr_scheduler, "interval": interval, "monitor": "val_loss", "frequency": 1}}
-
 @hydra.main(config_path="./", config_name="config", version_base="1.1")
 def main(cfg):
     seed_everything(cfg.SEED)
@@ -83,7 +72,7 @@ def main(cfg):
     wandb.login(key=secret_value)
     pl_logger = WandbLogger(name=cfg.EXP_NAME, project="Harmful Brain Activity Classification")
     progress_bar = pl.callbacks.TQDMProgressBar(refresh_rate=1)
-    #early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
+    early_stopping = pl.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='min')
   
     trainer = pl.Trainer(
         # env
@@ -97,7 +86,7 @@ def main(cfg):
         max_steps=cfg.EPOCHS * len(datamodule.train_dataloader()),
         gradient_clip_val=cfg.gradient_clip_val,
         accumulate_grad_batches=cfg.accumulate_grad_batches,
-        callbacks=[checkpoint_cb, lr_monitor, model_summary, progress_bar],
+        callbacks=[checkpoint_cb, lr_monitor, model_summary, early_stopping, progress_bar],
         logger=pl_logger,
         # resume_from_checkpoint=resume_from,
         num_sanity_val_steps=0,
