@@ -56,13 +56,13 @@ class CustomModel(pl.LightningModule):
             
         x = torch.cat([x,x,x], dim=3)
         x = x.permute(0, 3, 1, 2)
+        x = Resize((448, 448))(x)
         return x
     
     def forward(self, x):
         x = self.__reshape_input(x)
         x = self.features(x)
         x = self.custom_layers(x)
-        x = Resize((448, 448))(x)
         return x
 
     def training_step(self, batch, batch_idx):
