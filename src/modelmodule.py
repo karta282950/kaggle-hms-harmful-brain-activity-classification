@@ -1,5 +1,6 @@
 from torch import nn 
 import torch 
+import pytorch_lightning as pl
 
 class KLDivLossWithLogits(nn.KLDivLoss):
     def __init__(self):
